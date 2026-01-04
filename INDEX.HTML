@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSPCL JE Technical Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --pspcl-blue: #003366;
+            --pspcl-yellow: #ffcc00;
+            --pspcl-green: #4a5d23;
+            --white: #ffffff;
+            --danger: #d32f2f;
+            --bg-gray: #f0f4f7;
+        }
+
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
+
+        /* --- LOGIN SCREEN --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--pspcl-blue); display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .login-box {
+            background: var(--white); padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 350px;
+            text-align: center; border-bottom: 8px solid var(--pspcl-yellow);
+        }
+        .login-box h2 { color: var(--pspcl-blue); margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-login { width: 100%; padding: 12px; background: var(--pspcl-blue); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* --- MAIN LAYOUT --- */
+        #main-content { display: none; }
+        header { background: var(--pspcl-blue); color: var(--white); padding: 20px; text-align: center; border-bottom: 5px solid var(--pspcl-yellow); }
+
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        .card { 
+            background: var(--white); border-radius: 8px; padding: 25px; text-align: center; 
+            cursor: pointer; transition: 0.3s; border-top: 6px solid var(--pspcl-blue); 
+            font-weight: bold; color: var(--pspcl-blue); box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: center; min-height: 70px;
+        }
+        .card:hover { transform: translateY(-5px); border-top-color: var(--pspcl-yellow); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+
+        /* --- TASK PANELS --- */
+        .task-panel { display: none; background: var(--white); min-height: 100vh; animation: fadeIn 0.3s; }
+        .task-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #e9ecef; padding: 10px 30px; border-bottom: 2px solid var(--pspcl-blue); 
+        }
+        .btn-dashboard { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .content-body { padding: 30px; }
+
+        /* --- TAB 1 SPECIFIC STYLES --- */
+        .calc-wrapper { max-width: 500px; margin: auto; background: var(--pspcl-green); padding: 25px; border-radius: 10px; color: white; }
+        .calc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .calc-row input, .calc-row select { width: 55%; padding: 10px; border-radius: 5px; border: none; font-weight: bold; }
+        .result-box { display: flex; justify-content: space-between; padding: 12px; background: var(--pspcl-yellow); color: #000; font-weight: bold; margin-bottom: 8px; border: 1px solid #333; }
+
+        /* --- TAB 2 SPECIFIC STYLES --- */
+        #errorAlert { display: none; background: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; }
+        .notice-top { color:red; font-weight:900; font-size: 1.1rem; margin-bottom:15px; text-align: center; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .title-box textarea { width:100%; border:2px solid #000; padding:6px; margin-top:5px; display:block; resize: none; box-sizing: border-box;}
+        .main-table, .lab-table { width:100%; border-collapse:collapse; background:#fff; margin-bottom:10px; table-layout: fixed;}
+        .main-table th, .main-table td, .lab-table th, .lab-table td { border:1px solid #000; padding:2px; text-align:center; font-size: 11px; }
+        .main-table th { background:#e0e0e0; }
+        .calc-container-tab2 { display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; }
+        .labour-selection-section { width: 62%; }
+        .totals-section { width: 36%; }
+        .total-row td { font-weight:bold; background:#f0f0f0 }
+        .final-row td { font-weight:bold; background:#dff0d8; font-size:14px }
+        .btn-container-tab2 { margin-top: 20px; display: flex; gap: 10px; }
+        .btn-add { background: #28a745; color: white; border: none; padding: 8px 12px; cursor:pointer; font-weight:bold; border-radius:4px;}
+        .btn-lab { background: #17a2b8; color: white; border: none; font-size: 10px; margin-top: 5px; padding: 5px; cursor:pointer;}
+        .btn-pdf { background: #007bff; color: white; border: none; padding: 8px 12px; cursor:pointer; font-weight:bold; border-radius:4px;}
+        .btn-del { background: #dc3545; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px;}
+        .tab2-input { width: 100%; border: none; text-align: center; padding: 2px; box-sizing: border-box; background: transparent;}
+        .tab2-input:focus { outline: 1px solid #007bff; background: #fff;}
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+
+<div id="login-overlay">
+    <div class="login-box">
+        <div style="background: var(--pspcl-yellow); padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+            <b style="color: #000; font-size: 12px;">📢 ਜ਼ਰੂਰੀ ਸੂਚਨਾ:<br> SR/SRW ਦੀ PDF ਫਾਈਲ ਲਈ, <br>ਜੇਈਆਂ ਦੇ ਅਕਾਉਂਟ ਬਣਾਉਣ ਜਾਂ ਜੇਈਆਂ ਦੇ ਕਿਸੇ ਵੀ ਹੋਰ ਕੰਮਾਂ ਵਿੱਚ ਸਹਾਇਤਾ ਲਈ<br>9988344156
+.</b>
+        </div>
+        <h2>ਜੇਈ ਹੈਲਪਡੈਸਕ</h2>
+        <h2>ਸਹਾਇਤਾ ਲਈ : 9988344156</h2>
+        <input type="text" id="userid" placeholder="Enter User ID">
+        <input type="password" id="psw" placeholder="Enter Password">
+        <button class="btn-login" onclick="checkLogin()">SECURE LOGIN</button>
+        <p id="error-msg" style="color:var(--danger); font-size:13px; margin-top:10px; display:none; font-weight: bold;">❌ Invalid Credentials</p>
+    </div>
+</div>
+
+<div id="legal-modal" style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; justify-content:center; align-items:center; padding: 20px;">
+    <div style="background:white; padding:30px; border-radius:10px; max-width:500px; text-align:center; border-top: 10px solid var(--pspcl-blue);">
+        <h3 style="color: var(--pspcl-blue);">ਜ਼ਰੂਰੀ ਜਾਣਕਾਰੀ</h3>
+        <p style="text-align: left; font-size: 14px; color: #555; line-height: 1.6;">
+            ਇਹ ਪੇਜ ਪੂਰਨ ਰੂਪ ਵਿੱਚ ਸਿਰਫ ਆਪ ਦੀ ਸਹਾਇਤਾ ਲਈ ਤਿਆਰ ਕੀਤਾ ਗਿਆ ਹੈ, ਸਿੱਧੇ-ਅਸਿੱਧੇ ਰੂਪ ਵਿੱਚ ਕਿਸੇ ਵੀ ਵਿਭਾਗ ਨਾਲ ਇਸਦਾ ਕੋਈ ਸਬੰਧੀ ਨਹੀਂ ਹੈ:
+            <br>• 
+            <br>• SR/SRW ਦੀ PDF ਫਾਈਲ ਲਈ ਅਤੇ ਜੇਈਆਂ ਦੇ ਅਕਾਉਂਟ ਬਣਾਉਣ ਜਾਂ ਜੇਈਆਂ ਦੇ ਕਿਸੇ ਵੀ ਹੋਰ ਕੰਮਾਂ ਵਿੱਚ ਸਹਾਇਤ ਲਈ ਤੁਸੀ 9988344156 ਤੇ ਸੰਪਰਕ ਕਰ ਸਕਦੇ ਹੋ।
+            <br> 
+        </p>
+        <button onclick="acceptLegal()" style="background:var(--pspcl-blue); color:white; padding:12px 30px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; margin-top:20px;">I AGREE & PROCEED</button>
+    </div>
+</div>
+<div id="main-content">
+    
+    <div id="home-view">
+        <header style="position: relative;">
+    <h1 style="margin:0;"> JE OPERATIONAL DASHBOARD</h1>
+    <p style="margin:5px; opacity:0.8;">ਇਹ ਪੂਰਨ ਰੂਪ ਵਿੱਚ ਸਿਰਫ ਆਪ ਦੀ ਸਹਾਇਤ ਲਈ ਤਿਆਰ ਕੀਤਾ ਗਿਆ ਹੈ, ਸਿੱਧੇ ਅਸਿੱਧੇ ਰੂਪ ਵਿੱਚ ਕਿਸੇ ਵੀ ਵਿਭਾਗ ਨਾਲ ਇਸਦਾ ਕੋਈ ਸਬੰਧ ਨਹੀਂ ਹੈ।</p>
+    
+    <button onclick="handleLogout()" style="
+        position: absolute; 
+        top: 20px; 
+        right: 20px; 
+        background: var(--danger); 
+        color: white; 
+        border: 2px solid var(--white); 
+        padding: 8px 15px; 
+        border-radius: 5px; 
+        cursor: pointer; 
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;">
+        🔒 LOGOUT
+    </button>
+</header>
+        <div class="container">
+            <div class="grid">
+                <div class="card" onclick="openTab('tab1')">1. ਟਰਾਂਸਫਾਰਮਰ ਡੈਪਰੀਸ਼ੇਸ਼ਨ ਕੈਲਕੂਲੇਟਰ</div>
+                <div class="card" onclick="openTab('tab2')">2. ਆਮ MATERIAL ਸ਼ੀਟ</div>
+                <div class="card" onclick="openTab('tab3')">3. ਜਮ੍ਹਾ ਤਖਮੀਨਾ MATERIAL ਸ਼ੀਟ</div>
+                <div class="card" onclick="openTab('tab4')">4. ਵੀ ਡੀ ਐਸ ਐਸਟੀਮੇਟ</div>
+                <div class="card" onclick="openTab('tab5')">5. ਐਲ ਐਸ / ਟੈਂਪਰੇਰੀ ਕਨੈਕਸ਼ਨ MATERIAL ਸ਼ੀਟ</div>
+                <div class="card" onclick="openTab('tab6')">6. ਆਪਣੀਆਂ ਸਾਰੀਆਂ SR/SRW ਪ੍ਰਾਪਤ ਕਰੋ</div>
+                <div class="card" onclick="openTab('tab7')">7. ਰਾਈਟ ਆਫ ਪ੍ਰੋਫਾਰਮੇ ਸਮੇਤ ਸਾਰੇ SRW ਪ੍ਰਾਪਤ ਕਰੋ</div>
+                <div class="card" onclick="openTab('tab8')">8. ਜੇਈਆਂ ਦੇ ਅਕਾਉਂਟ ਤਿਆਰ ਕਰਵਾਉ</div>
+                <div class="card" onclick="openTab('tab9')">9. HELPDESK</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab1" class="task-panel">
+        <div class="task-header">
+            <h2>ਟਰਾਂਸਫਾਰਮਰ ਡੈਪਰੀਸ਼ੇਸ਼ਨ ਕੈਲਕੂਲੇਟਰ</h2>
+            <button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button>
+        </div>
+        <div class="content-body">
+            <div class="calc-wrapper">
+                <div class="calc-row"><label>Manufacture Date</label><input type="date" id="mfgDate" onchange="runCalc()"></div>
+                <div class="calc-row"><label>Capacity (KVA)</label><select id="kva" onchange="runCalc()">
+                    <option value="6.3">6.3</option><option value="10 1P">10 KVA 1P</option><option value="10">10</option>
+                    <option value="16">16</option><option value="25">25</option><option value="63">63</option>
+                    <option value="100">100</option><option value="200">200</option><option value="300">300</option><option value="500">500</option>
+                </select></div>
+                <div class="result-box"><span>Depreciation %:</span> <span>5.28%</span></div>
+                <div class="result-box"><span>Value of T/F:</span> <span id="r-val">0</span></div>
+                <div class="result-box"><span>Depreciation of T/F:</span> <span id="r-dep-amt">0</span></div>
+                <div class="result-box"><span>Present Value of T/F:</span> <span id="r-pres">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab2" class="task-panel">
+        <div class="task-header no-print">
+            <h2>ਆਮ MATERIAL ਸ਼ੀਟ</h2>
+            <button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button>
+        </div>
+        <div class="content-body">
+            <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
+            <div class="notice-top no-print">ਮਟੀਈਰੀਅਲ ਸ਼ੀਟ ਬਣਵਾਉ - Contact: Nitish 9988344156</div>
+
+            <div id="print-area">
+                <div class="title-box">
+                    <b>Name of Work</b> 
+                    <textarea id="workName" rows="3" placeholder="Enter work description here..."></textarea>
+                </div>
+
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th style="width:30px">S.N</th>
+                            <th>Material</th>
+                            <th style="width:60px">Rate</th>
+                            <th style="width:50px">Qty</th>
+                            <th style="width:60px">Dismantle</th>
+                            <th style="width:55px">Return</th>
+                            <th style="width:55px">Reuse</th>
+                            <th style="width:80px">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+
+                <div class="calc-container-tab2">
+                    <div class="labour-selection-section">
+                        <b style="font-size: 13px; display: block; margin-bottom: 5px;">Labour Calculation (Editable)</b>
+                        <table class="lab-table">
+                            <thead>
+                                <tr>
+                                    <th>Labour Description</th>
+                                    <th style="width:40px">Qty</th>
+                                    <th style="width:60px">Unit Rate</th>
+                                    <th style="width:80px">Total</th>
+                                    <th style="width:30px" class="no-print">X</th>
+                                </tr>
+                            </thead>
+                            <tbody id="labourBody"></tbody>
+                            <tbody id="manualLabourBody"></tbody>
+                            <tfoot>
+                                <tr class="no-print"><td colspan="5"><button class="btn-lab" onclick="addManualLabour()">➕ Add Manual Labour Row</button></td></tr>
+                                <tr class="total-row"><td colspan="3" align="right">LABOUR TOTAL</td><td>₹ <span id="labourTotal">0.00</span></td><td class="no-print"></td></tr>
+                                <tr class="total-row"><td colspan="3" align="right">LABOUR (×54)</td><td>₹ <span id="labourSpecial">0.00</span></td><td class="no-print"></td></tr>
+                                <tr class="total-row"><td colspan="3" align="right">LABOUR (GST 18%)</td><td>₹ <span id="totalLabourLeft">0.00</span></td><td class="no-print"></td></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="totals-section">
+                        <b style="font-size: 13px; display: block; margin-bottom: 5px;">Summary</b>
+                        <table class="main-table">
+                            <tr class="total-row"><td align="right">MATERIAL TOTAL</td><td>₹ <span id="materialTotal">0.00</span></td></tr>
+                            <tr class="total-row"><td align="right">SUNDRY (Adjusted)</td><td>₹ <span id="sundry">0.00</span></td></tr>
+                            <tr class="total-row"><td align="right">TOTAL (M+S)</td><td>₹ <span id="subTotal">0.00</span></td></tr>
+                            <tr class="total-row"><td align="right">C/S/T @ 5%</td><td>₹ <span id="cst">0.00</span></td></tr>
+                            <tr class="total-row"><td align="right" style="color:#d9534f">LABOUR (GST 18%)</td><td>₹ <span id="totalLabourSummary">0.00</span></td></tr>
+                            <tr class="final-row"><td align="right">GRAND TOTAL</td><td>₹ <span id="grandTotal">0.00</span></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-container-tab2 no-print">
+                <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
+                <button class="btn-pdf" onclick="downloadPDF()">💾 Save PDF</button>
+                <button class="btn-print" onclick="window.print()" style="background:#ffc107; color:black;">🖨️ Print Now</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab3" class="task-panel">
+    <style>
+        /* Scoped styles to prevent interference with other tabs */
+        #tab3 .app-wrapper { font-family: Arial, sans-serif; background: #f4f6f8; padding: 10px; color: #333; }
+        #tab3 .notice-top { color: red; font-weight: 900; font-size: 1.1rem; margin-bottom: 15px; text-align: center; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        #tab3 .title-box textarea { width: 100%; border: 2px solid #000; padding: 6px; margin-top: 5px; display: block; resize: none; }
+        #tab3 table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; margin-bottom: 10px; }
+        #tab3 th, #tab3 td { border: 1px solid #000; padding: 2px; text-align: center; font-size: 11px; }
+        #tab3 th { background: #e0e0e0; }
+        #tab3 .calc-container { display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; }
+        #tab3 .labour-selection-section { width: 62%; }
+        #tab3 .totals-section { width: 36%; }
+        #tab3 input { width: 100%; padding: 2px; box-sizing: border-box; border: none; text-align: center; background: transparent; }
+        #tab3 input:focus { outline: 1px solid #007bff; background: #fff; }
+        #tab3 .total-row td { font-weight: bold; background: #f0f0f0; }
+        #tab3 .final-row td { font-weight: bold; background: #dff0d8; font-size: 14px; }
+        #tab3 .btn-lab { background: #17a2b8; color: white; border: none; font-size: 10px; margin-top: 5px; padding: 4px 8px; cursor: pointer; border-radius: 4px; }
+        #tab3 .btn-del { background: #dc3545; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px; border-radius: 3px; }
+        #tab3 #errorAlert { display: none; background: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; }
+
+        @media print {
+            #tab3 .no-print { display: none !important; }
+            #tab3 .app-wrapper { background: white; padding: 0; }
+            #tab3 input, #tab3 textarea { border: none !important; pointer-events: none; }
+            #tab3 .task-header { display: none; }
+        }
+    </style>
+
+    <div class="task-header no-print">
+        <h2>3. ਜਮ੍ਹਾ ਤਖਮੀਨਾ MATERIAL ਸ਼ੀਟ</h2>
+        <button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button>
+    </div>
+
+    <div class="content-body app-wrapper">
+        <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
+        
+        <div id="tab3-print-area">
+            <div class="title-box">
+                <b>Name of Work</b> 
+                <textarea id="t3-workName" rows="2" placeholder="Enter work description here..."></textarea>
+            </div>
+
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th style="width:30px">S.N</th>
+                        <th>Material</th>
+                        <th style="width:70px">Rate</th>
+                        <th style="width:50px">Qty</th>
+                        <th style="width:60px">Dismantle</th>
+                        <th style="width:55px">Return</th>
+                        <th style="width:55px">Reuse</th>
+                        <th style="width:90px">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="t3-tableBody"></tbody>
+            </table>
+
+            <div class="calc-container">
+                <div class="labour-selection-section">
+                    <b style="font-size: 12px;">Labour Calculation (Editable)</b>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Labour Description</th>
+                                <th style="width:45px">Qty</th>
+                                <th style="width:60px">Rate</th>
+                                <th style="width:80px">Total</th>
+                                <th style="width:30px" class="no-print">X</th>
+                            </tr>
+                        </thead>
+                        <tbody id="t3-labourBody"></tbody>
+                        <tbody id="t3-manualLabourBody"></tbody>
+                        <tfoot>
+                            <tr class="no-print">
+                                <td colspan="5" style="text-align: left; padding: 5px;">
+                                    <button class="btn-lab" onclick="addT3ManualLabour()">➕ Add Manual Labour Row</button>
+                                </td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">LABOUR TOTAL</td>
+                                <td>₹ <span id="t3-labourTotal">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">LABOUR (×54)</td>
+                                <td>₹ <span id="t3-labourSpecial">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">LABOUR (GST 18%)</td>
+                                <td>₹ <span id="t3-totalLabourLeft">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="totals-section">
+    <b style="font-size: 12px; display: block; margin-bottom: 5px;">Summary (14-Step Pattern)</b>
+    <table>
+        <tr><td align="right">1. MATERIAL TOTAL</td><td>₹ <span id="t3-mat-raw">0.00</span></td></tr>
+        <tr><td align="right">2. SUNDRY (Adjusted)</td><td>₹ <span id="t3-sundry-val">0.00</span></td></tr>
+        
+        <tr class="total-row" style="background:#f0f0f0;"><td align="right">3. TOTAL 1 (1 + 2)</td><td>₹ <span id="t3-total1">0.00</span></td></tr>
+        <tr><td align="right">4. C/S/T @ 5% (on 3)</td><td>₹ <span id="t3-cst">0.00</span></td></tr>
+        <tr class="total-row"><td align="right">5. TOTAL 2 (3 + 4)</td><td>₹ <span id="t3-total2">0.00</span></td></tr>
+        
+        <tr><td align="right">6. CHARGES @ 4% (on 5)</td><td>₹ <span id="t3-four-percent">0.00</span></td></tr>
+        <tr class="total-row" style="background:#f0f0f0;"><td align="right">7. TOTAL 3 (5 + 6)</td><td>₹ <span id="t3-total3">0.00</span></td></tr>
+        
+        <tr>
+            <td align="right">8. FABRICATION (Rate ₹28) <br> Qty: <input type="number" id="t3-fab-qty" style="width:45px; border:1px solid #ccc; text-align:center;" value="0" oninput="finalCalcT3()"></td>
+            <td>₹ <span id="t3-fab-amt">0.00</span></td>
+        </tr>
+        <tr><td align="right">9. LABOUR (Total × 54)</td><td>₹ <span id="t3-labour-54">0.00</span></td></tr>
+        <tr class="total-row" style="background:#e3f2fd;"><td align="right">10. TOTAL 4 (7 + 8 + 9)</td><td>₹ <span id="t3-total4">0.00</span></td></tr>
+        
+        <tr><td align="right">11. CONTINGENCY @ 2.5% (on 10)</td><td>₹ <span id="t3-cont">0.00</span></td></tr>
+        <tr class="total-row" style="background:#e3f2fd;"><td align="right">12. TOTAL 5 (10 + 11)</td><td>₹ <span id="t3-total5">0.00</span></td></tr>
+        <tr><td align="right">13. GST @ 18% (on 12)</td><td>₹ <span id="t3-gst">0.00</span></td></tr>
+        <tr class="final-row">
+            <td align="right">14. GRAND TOTAL (12 + 13)</td>
+            <td>₹ <span id="t3-grandTotal">0.00</span></td>
+        </tr>
+    </table>
+</div>
+            </div>
+        </div>
+
+        <div class="btn-container no-print" style="margin-top:20px; display:flex; gap:10px;">
+            <button class="btn-add" style="background:#28a745; color:white;" onclick="addT3Row()">➕ Add Material Row</button>
+            <button onclick="window.print()" style="background:#ffc107;">🖨️ Print / Save PDF</button>
+        </div>
+    </div>
+</div>
+
+    <div id="tab4" class="task-panel"><style>
+            .form-container-tab4 {
+                max-width: 900px;
+                margin: 20px auto;
+                background: #fff;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+            .form-group label {
+                font-weight: bold;
+                margin-bottom: 5px;
+                color: var(--pspcl-blue);
+                font-size: 14px;
+            }
+            .form-group input, .form-group select {
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            .btn-generate {
+                grid-column: span 2;
+                background: #28a745;
+                color: white;
+                padding: 15px;
+                border: none;
+                border-radius: 6px;
+                font-weight: bold;
+                font-size: 18px;
+                cursor: pointer;
+                margin-top: 20px;
+            }
+            /* Hidden template for PDF generation */
+            #pdf-template {
+                display: none;
+                font-family: serif;
+                padding: 40px;
+                color: #000;
+            }
+            .pdf-page {
+                page-break-after: always;
+                min-height: 1000px;
+            }
+            .pdf-header { text-align: center; text-decoration: underline; font-weight: bold; margin-bottom: 30px; }
+        </style>
+
+        <div class="task-header">
+            <h2>4. DISMANTLEMENT MATERIAL SHEET</h2>
+            <button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button>
+        </div>
+
+        <div class="content-body">
+            <div class="form-container-tab4">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>1. Name of Subdivision</label>
+                        <input type="text" id="t4_subdiv" placeholder="Enter Subdivision">
+                    </div>
+                    <div class="form-group">
+                        <label>2. Existing T/F (KVA)</label>
+                        <select id="t4_ext_tf">
+                            <option value="6.3">6.3 KVA</option>
+                            <option value="10">10 KVA</option>
+                            <option value="16">16 KVA</option>
+                            <option value="25">25 KVA</option>
+                            <option value="63">63 KVA</option>
+                            <option value="100">100 KVA</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>3. Proposed T/F (KVA)</label>
+                        <select id="t4_prop_tf">
+                            <option value="10">10 KVA</option>
+                            <option value="16">16 KVA</option>
+                            <option value="25">25 KVA</option>
+                            <option value="63">63 KVA</option>
+                            <option value="100">100 KVA</option>
+                            <option value="200">200 KVA</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>4. Name</label>
+                        <input type="text" id="t4_name" placeholder="Consumer Name">
+                    </div>
+                    <div class="form-group">
+                        <label>5. Village</label>
+                        <input type="text" id="t4_village" placeholder="Village Name">
+                    </div>
+                    <div class="form-group">
+                        <label>6. Previous Load (kW)</label>
+                        <input type="text" id="t4_prev_load">
+                    </div>
+                    <div class="form-group">
+                        <label>7. New Load (kW)</label>
+                        <input type="text" id="t4_new_load">
+                    </div>
+                    <div class="form-group">
+                        <label>8. BA 16 No.</label>
+                        <input type="text" id="t4_ba_no">
+                    </div>
+                    <div class="form-group">
+                        <label>9. BA 16 Date</label>
+                        <input type="date" id="t4_ba_date">
+                    </div>
+                    <div class="form-group">
+                        <label>10. Amount (₹)</label>
+                        <input type="number" id="t4_amt">
+                    </div>
+                    <div class="form-group">
+                        <label>11. Name of Feeder</label>
+                        <input type="text" id="t4_feeder">
+                    </div>
+                    <div class="form-group">
+                        <label>12. Serial Number of T/F</label>
+                        <input type="text" id="t4_serial">
+                    </div>
+                    <div class="form-group">
+                        <label>13. Make of T/F</label>
+                        <input type="text" id="t4_make">
+                    </div>
+                    <div class="form-group">
+                        <label>14. Date of Installation</label>
+                        <input type="date" id="t4_inst_date">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="pdf-template">
+            <div class="pdf-page">
+                <div class="pdf-header">PUNJAB STATE POWER CORPORATION LIMITED</div>
+                <p align="right">Subdivision: <span id="p_subdiv"></span></p>
+                <h3>Subject: Dismantlement Report for <span id="p_name"></span></h3>
+                <p>This is to certify that the existing transformer of capacity <span id="p_ext"></span> KVA is being replaced by <span id="p_prop"></span> KVA at village <span id="p_village"></span>.</p>
+                <p><b>Consumer Details:</b></p>
+                <ul>
+                    <li>Previous Load: <span id="p_prev"></span> kW</li>
+                    <li>New Sanctioned Load: <span id="p_new"></span> kW</li>
+                    <li>BA 16 Details: No. <span id="p_ba_no"></span> dated <span id="p_ba_date"></span></li>
+                </ul>
+                <br><br><br>
+                <p align="right">Sign of JE/AAE</p>
+            </div>
+
+            <div class="pdf-page">
+                <div class="pdf-header">TECHNICAL SPECIFICATION & SITE REPORT</div>
+                <p>The technical parameters of the existing unit Serial No: <span id="p_serial"></span> (Make: <span id="p_make"></span>) installed on <span id="p_inst"></span> were checked on site.</p>
+                <p>The feeder <span id="p_feeder"></span> has been isolated for the dismantlement process.</p>
+                <p>Total Estimate Amount: ₹ <span id="p_amt"></span></p>
+                <br><br>
+                <div style="border: 1px solid #000; height: 300px; padding: 10px;">
+                    REMARKS/SITE DIAGRAM:
+                </div>
+            </div>
+
+            <div class="pdf-page">
+                <div class="pdf-header">MATERIAL RETURN ADVICE (SRW)</div>
+                <p>The following material is being returned to the stores after dismantlement from the site of <span id="p_name2"></span>.</p>
+                <table border="1" width="100%" cellpadding="10" style="border-collapse: collapse;">
+                    <tr><th>SN</th><th>Description</th><th>Qty</th></tr>
+                    <tr><td>1</td><td>Transformer <span id="p_ext2"></span> KVA</td><td>1 No.</td></tr>
+                    <tr><td>2</td><td>Iron Structure</td><td>-</td></tr>
+                </table>
+            </div>
+
+            <div class="pdf-page">
+                <div class="pdf-header">CERTIFICATE OF COMPLETION</div>
+                <p>Certified that the work of augmentation/dismantlement at Village <span id="p_village2"></span> has been carried out as per the sanctioned estimate and PSPCL technical instructions.</p>
+                <br><br><br><br>
+                <table width="100%">
+                    <tr>
+                        <td>_________________<br>Junior Engineer</td>
+                        <td align="right">_________________<br>Addl. S.E. / Sr.Xen</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="tab5" class="task-panel"><div class="task-header"><h2>ਐਲ ਐਸ / ਟੈਂਪਰੇਰੀ ਕਨੈਕਸ਼ਨ MATERIAL ਸ਼ੀਟ</h2><button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button></div></div>
+    <div id="tab6" class="task-panel"><div class="task-header"><h2>ONE CLICK SR/SRW</h2><button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button></div></div>
+    <div id="tab7" class="task-panel"><style>
+            .tab7-container {
+                max-width: 800px;
+                margin: 30px auto;
+                padding: 20px;
+                text-align: center;
+            }
+            .video-section {
+                background: #000;
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                margin-bottom: 30px;
+                aspect-ratio: 16 / 9;
+                width: 10%;
+            }
+            .instruction-card {
+                background: #fff;
+                padding: 25px;
+                border-radius: 12px;
+                border-left: 5px solid #ffcc00;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                margin-bottom: 30px;
+                text-align: left;
+            }
+            .action-btn-tab7 {
+                display: inline-flex;
+                align-items: center;
+                gap: 12px;
+                background: #d32f2f; /* Danger/Red color for importance */
+                color: white;
+                text-decoration: none;
+                padding: 18px 35px;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 18px;
+                transition: 0.3s;
+                border: none;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+            }
+            .action-btn-tab7:hover {
+                background: #b71c1c;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(211, 47, 47, 0.5);
+            }
+            .video-placeholder-text {
+                color: white;
+                display: flex;
+                height: 100%;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+            }
+        </style>
+
+        <div class="task-header">
+            <h2>7. SR/SRW ਅਤੇ ਰਾਈਟ ਆਫ ਪ੍ਰੋਫਾਰਮੇ</h2>
+            <button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button>
+        </div>
+
+        <div class="tab7-container">
+            <div class="instruction-card">
+                <h3 style="color: #003366; margin-top: 0;">ਸਾਰੇ SR/SRW ਅਤੇ ਰਾਈਟ ਆਫ ਦੇ ਪ੍ਰੋਫਾਰਮੇ ਕਿਵੇਂ ਤਿਆਰ ਕਰੀਏ</h3>
+                <p style="color: #555; line-height: 1.6;">
+                    ਆਪਣੇ ਸਾਰੇ SR/SRW ਅਤੇ ਰਾਈਟ ਆਫ ਦੇ ਪ੍ਰੋਫਾਰਮੇ ਸਮੇਤ SRW ਆਪ ਨੂੰ PDF ਅਤੇ ਕਾਪੀ ਕੁਰੀਅਰ ਰਾਂਹੀ ਮੰਗਵਾ ਸਕਦੇ ਹੋ।
+                    ਆਪਣਾ ID ਨੰਬਰ ਵਟਸਐੱਪ ਕਰੋ.
+                </p>
+            </div>
+
+            <div class="video-section">
+                <iframe width="100%" height="100%" 
+                    src="https://youtu.be/dCgvh3t6P8o" 
+                    title="YouTube video player" frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+		<div style="margin-top: 20px;">
+            <p style="color: #666; font-style: italic;">ਜੇਕਰ ਵੀਡਿਓ ਨਾ ਚੱਲੇ ਤਾਂ ਕਿਰਪਾ ਕਰੇ ਨੀਚੇ ਬਟਨ ਤੇ ਕਲਿੱਕ ਕਰੋ:</p>
+            <a href="https://youtu.be/dCgvh3t6P8o" target="_blank" class="btn" style="background: #ff0000; color: white; text-decoration: none; display: inline-block; padding: 10px 25px;">
+                Open Video in YouTube
+            </a>
+        </div>
+    </div>
+            <a href="https://wa.me/919988344156?text=HELLO%20JI%20" 
+               target="_blank" 
+               class="action-btn-tab7">
+                <svg width="24" height="24" fill="white" viewBox="0 0 16 16">
+                    <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                </svg>
+                ਸਾਰੇ SR/SRW ਅਤੇ ਰਾਈਟ ਆਫ ਪ੍ਰੋਫਾਰਮੇ ਤਿਆਰ ਕਰਵਾਉਣ ਲਈ ਮੈਸੇਜ ਕਰੋ
+            </a>
+            
+            <p style="margin-top: 15px; color: #888; font-size: 13px;">
+                (Note: This will notify the technical administrator via WhatsApp)
+            </p>
+        </div>
+    </div>
+    <div id="tab8" class="task-panel"><div class="task-header"><h2>ਐਲ ਐਸ / ਟੈਂਪਰੇਰੀ ਕਨੈਕਸ਼ਨ MATERIAL ਸ਼ੀਟ</h2><button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button></div></div>
+</div>
+<div id="tab9" class="task-panel" id="tab9" style="display: none; background: var(--bg-gray);">
+    <div class="task-header no-print">
+        <h2>9. HELPDESK / ਸਹਾਇਤਾ ਕੇਂਦਰ</h2>
+        <button class="btn-dashboard" onclick="closeTab()">BACK TO DASHBOARD ✖</button>
+    </div>
+
+    <div class="content-body">
+        <div style="max-width: 600px; margin: 40px auto; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 8px solid var(--pspcl-blue);">
+            
+            <div style="padding: 30px; text-align: center;">
+                <div style="background: #e9ecef; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <span style="font-size: 40px;">👨‍💻</span>
+                </div>
+                
+                <h3 style="color: var(--pspcl-blue); margin-bottom: 10px; font-size: 22px;">Technical Support</h3>
+                <p style="color: #666; line-height: 1.6; margin-bottom: 25px;">
+                    SR/SRW ਦੀ PDF ਫਾਈਲ ਲਈ, ਜੇਈਆਂ ਦੇ ਅਕਾਉਂਟ ਬਣਾਉਣ ਜਾਂ ਕਿਸੇ ਵੀ ਤਕਨੀਕੀ ਸਹਾਇਤਾ ਲਈ ਹੇਠਾਂ ਦਿੱਤੇ ਨੰਬਰ ਤੇ ਸੰਪਰਕ ਕਰੋ।
+                </p>
+
+                <div style="background: var(--bg-gray); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                    <span style="display: block; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Contact Number</span>
+                    <strong style="font-size: 24px; color: var(--pspcl-blue);">+91 9988344156</strong>
+                </div>
+
+                <a href="https://wa.me/919988344156?text=Hello%20Support,%20I%20need%20assistance%20with%20the%20JE%20Technical%20Portal." 
+                   target="_blank" 
+                   style="display: flex; align-items: center; justify-content: center; gap: 10px; background: #25D366; color: white; text-decoration: none; padding: 15px 25px; border-radius: 8px; font-weight: bold; font-size: 18px; transition: 0.3s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);">
+                    <svg width="24" height="24" fill="white" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.438 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    Message on WhatsApp
+                </a>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 15px; text-align: center; border-top: 1px solid #eee;">
+                <p style="margin: 0; font-size: 12px; color: #999;">Support available for JE Account Setup & Estimations</p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    // --- GLOBAL LOGIN & NAV ---
+    function checkLogin() {
+    const user = document.getElementById('userid').value;
+    const psw = document.getElementById('psw').value;
+    const errorMsg = document.getElementById('error-msg');
+    
+    // Get Current Date
+    const now = new Date();
+    // Set Threshold Date: Jan 31, 2026
+    const thresholdDate = new Date("2026-01-31");
+
+    let validUser = "";
+    let validPass = "";
+
+    // LOGIC: Check if today is after Jan 31, 2026
+    if (now > thresholdDate) {
+        validUser = "1234";
+        validPass = "Amloh@123";
+    } else {
+        validUser = "123";
+        validPass = "123";
+    }
+
+    if (user === validUser && psw === validPass) {
+        // Show Legal Notice instead of Dashboard immediately
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('legal-modal').style.display = 'flex';
+    } else {
+        errorMsg.style.display = 'block';
+        errorMsg.innerText = "❌ Invalid Credentials (Check Date-Gate)";
+    }
+}
+function handleLogout() {
+    if (confirm("Are you sure you want to logout?")) {
+        // 1. Hide the main dashboard and tabs
+        document.getElementById('main-content').style.display = 'none';
+        
+        // 2. Hide all open task panels
+        const panels = document.getElementsByClassName('task-panel');
+        for(let panel of panels) {
+            panel.style.display = 'none';
+        }
+        
+        // 3. Reset login inputs for security
+        document.getElementById('userid').value = "";
+        document.getElementById('psw').value = "";
+        document.getElementById('error-msg').style.display = 'none';
+
+        // 4. Show the login overlay again
+        document.getElementById('login-overlay').style.display = 'flex';
+        
+        // Optional: Reset the home view so it's ready for the next login
+        document.getElementById('home-view').style.display = 'block';
+    }
+}
+function acceptLegal() {
+    // Finally show the main content
+    document.getElementById('legal-modal').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+}
+
+    function openTab(id) {
+        document.getElementById('home-view').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+    }
+
+    function closeTab() {
+        const panels = document.querySelectorAll('.task-panel');
+        panels.forEach(p => p.style.display = 'none');
+        document.getElementById('home-view').style.display = 'block';
+    }
+
+    // --- TAB 1 LOGIC ---
+    const tableData = {
+"1991": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 15500, "63": 24665, "100": 22870, "200": 65000, "300": 105000, "500": null},
+"1992": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 21200, "63": 29575, "100": 40000, "200": 75000, "300": 121000, "500": 158400},
+"1993": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 24200, "63": 38500, "100": 50600, "200": 88000, "300": 107140, "500": 231000},
+"1994": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 23219, "63": 39104, "100": 46028, "200": 86063, "300": 98000, "500": 209400},
+"1995": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 21500, "63": "S", "100": 43500, "200": 83000, "300": 93400, "500": 215000},
+"1996": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 19100, "63": 32500, "100": 38900, "200": 72500, "300": 93400, "500": 215000},
+"1997": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 24413, "63": 39000, "100": 50600, "200": 85000, "300": 101028, "500": 215000},
+"1998": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 24413, "63": 39000, "100": 50000, "200": 83991, "300": 101028, "500": 193000},
+"1999": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 24413, "63": 38927, "100": 50192, "200": 83992, "300": 117251, "500": 350000},
+"2000": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 24800, "63": 40300, "100": 52800, "200": 87837, "300": 117251, "500": 180763},
+"2001": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 26676, "63": 40300, "100": 52800, "200": 87837, "300": 117000, "500": 181753},
+"2002": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 26350, "63": 40875, "100": 53770, "200": 87840, "300": 117000, "500": 181000},
+"2003": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 26350, "63": 40874, "100": 53756, "200": 86335, "300": 117250, "500": 183000},
+"2004": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 30954, "63": 40878, "100": 52309, "200": 101874, "300": 151800, "500": 239300},
+"2005": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 38195, "63": 40380, "100": 51489, "200": 101874, "300": 161909, "500": 257562},
+"2006": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 44816, "63": 52700, "100": 70414, "200": 170949, "300": 228822, "500": 267664},
+"2007": {"6.3": null, "10_1P": null, "10_3PH": null, "16": null, "25": 44305, "63": 52700, "100": 70414, "200": 170949, "300": 302000, "500": 267664},
+"2008": {"6.3": 20551, "10_1P": null, "10_3PH": 27226, "16": 36452, "25": 30955, "63": 81449, "100": 109495, "200": 225750, "300": 343593, "500": 399900},
+"2009": {"6.3": 32757, "10_1P": null, "10_3PH": 40487, "16": 55080, "25": 51335, "63": 86245, "100": 115261, "200": 261874, "300": 265185, "500": 677424},
+"2010": {"6.3": 24803, "10_1P": null, "10_3PH": 30762, "16": 41655, "25": 33392, "63": 66365, "100": 88714, "200": 203169, "300": 257250, "500": 491480},
+"2011": {"6.3": 25813, "10_1P": null, "10_3PH": 33610, "16": 43000, "25": 34780, "63": 56500, "100": 89610, "200": 194220, "300": 307262, "500": 551010},
+"2012": {"6.3": 19504, "10_1P": null, "10_3PH": 30779, "16": 42345, "25": 32701, "63": 55472, "100": 71110, "200": 138645, "300": 207262, "500": 511122},
+"2013": {"6.3": 24460, "10_1P": null, "10_3PH": 30152, "16": 43047, "25": 35951, "63": 58398, "100": 83426, "200": 138645, "300": 275800, "500": 521000},
+"2014": {"6.3": 26896, "10_1P": null, "10_3PH": 31488, "16": 36010, "25": 43621, "63": 70112, "100": 94914, "200": 189800, "300": 240264, "500": 628309},
+"2015": {"6.3": 25896, "10_1P": null, "10_3PH": 31488, "16": 36910, "25": 43621, "63": 70112, "100": 94914, "200": 184800, "300": 240264, "500": 628309},
+"2016": {"6.3": 28974, "10_1P": 26327, "10_3PH": 34870, "16": 39389, "25": 52580, "63": 86900, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+"2017": {"6.3": 28974, "10_1P": 26327, "10_3PH": 34870, "16": 39389, "25": 52580, "63": 89650, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+"2018": {"6.3": 28974, "10_1P": 26327, "10_3PH": 34870, "16": 39389, "25": 52580, "63": 89650, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+"2019": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 239569, "300": 278025, "500": 664732},
+"2020": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 192668, "300": 278025, "500": 798600},
+"2021": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 218999, "300": 278025, "500": 798600},
+"2022": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 170056, "200": 283045, "300": 278025, "500": 1150716},
+"2023": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 170056, "200": 283045, "300": 278025, "500": 1150716},
+"2024": {"6.3": 29553, "10_1P": 44000, "10_3PH": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 346951, "300": 278025, "500": 1540229},
+"2025": {"6.3": 29553, "10_1P": 44000, "10_3PH": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 360639, "300": 278025, "500": 1540229},
+"2026": {"6.3": 29553, "10_1P": 44000, "10_3PH": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 360639, "300": 278025, "500": 1540229}
+    };
+
+    function runCalc() {
+    const mfgDateInput = document.getElementById('mfgDate').value;
+    const kva = document.getElementById('kva').value;
+    const ratePerAnnum = 0.0528;
+
+    // --- HISTORICAL VALUE DATABASE ---
+    const tfData = {
+        "1991": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 15500, "63": 24665, "100": 22870, "200": 65000, "300": 105000, "500": 0},
+        "1992": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 21200, "63": 29575, "100": 40000, "200": 75000, "300": 121000, "500": 158400},
+        "1993": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 24200, "63": 38500, "100": 50600, "200": 88000, "300": 107140, "500": 231000},
+        "1994": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 23219, "63": 39104, "100": 46028, "200": 86063, "300": 98000, "500": 209400},
+        "1995": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 21500, "63": 39000, "100": 43500, "200": 83000, "300": 93400, "500": 215000},
+        "1996": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 19100, "63": 32500, "100": 38900, "200": 72500, "300": 93400, "500": 215000},
+        "1997": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 24413, "63": 39000, "100": 50600, "200": 85000, "300": 101028, "500": 215000},
+        "1998": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 24413, "63": 39000, "100": 50000, "200": 83991, "300": 101028, "500": 193000},
+        "1999": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 24413, "63": 38927, "100": 50192, "200": 83992, "300": 117251, "500": 350000},
+        "2000": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 24800, "63": 40300, "100": 52800, "200": 87837, "300": 117251, "500": 180763},
+        "2001": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 26676, "63": 40300, "100": 52800, "200": 87837, "300": 117000, "500": 181753},
+        "2002": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 26350, "63": 40875, "100": 53770, "200": 87840, "300": 117000, "500": 181000},
+        "2003": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 26350, "63": 40874, "100": 53756, "200": 86335, "300": 117250, "500": 183000},
+        "2004": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 30954, "63": 40878, "100": 52309, "200": 101874, "300": 151800, "500": 239300},
+        "2005": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 38195, "63": 40380, "100": 51489, "200": 101874, "300": 161909, "500": 257562},
+        "2006": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 44816, "63": 52700, "100": 70414, "200": 170949, "300": 228822, "500": 267664},
+        "2007": {"6.3": 0, "10 1P": 0, "10": 0, "16": 0, "25": 44305, "63": 52700, "100": 70414, "200": 170949, "300": 302000, "500": 267664},
+        "2008": {"6.3": 20551, "10 1P": 0, "10": 27226, "16": 36452, "25": 30955, "63": 81449, "100": 109495, "200": 225750, "300": 343593, "500": 399900},
+        "2009": {"6.3": 32757, "10 1P": 0, "10": 40487, "16": 55080, "25": 51335, "63": 86245, "100": 115261, "200": 261874, "300": 265185, "500": 677424},
+        "2010": {"6.3": 24803, "10 1P": 0, "10": 30762, "16": 41655, "25": 33392, "63": 66365, "100": 88714, "200": 203169, "300": 257250, "500": 491480},
+        "2011": {"6.3": 25813, "10 1P": 0, "10": 33610, "16": 43000, "25": 34780, "63": 56500, "100": 89610, "200": 194220, "300": 307262, "500": 551010},
+        "2012": {"6.3": 19504, "10 1P": 0, "10": 30779, "16": 42345, "25": 32701, "63": 55472, "100": 71110, "200": 138645, "300": 207262, "500": 511122},
+        "2013": {"6.3": 24460, "10 1P": 0, "10": 30152, "16": 43047, "25": 35951, "63": 58398, "100": 83426, "200": 138645, "300": 275800, "500": 521000},
+        "2014": {"6.3": 26896, "10 1P": 0, "10": 31488, "16": 36010, "25": 43621, "63": 70112, "100": 94914, "200": 189800, "300": 240264, "500": 628309},
+        "2015": {"6.3": 25896, "10 1P": 0, "10": 31488, "16": 36910, "25": 43621, "63": 70112, "100": 94914, "200": 184800, "300": 240264, "500": 628309},
+        "2016": {"6.3": 28974, "10 1P": 26327, "10": 34870, "16": 39389, "25": 52580, "63": 86900, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+        "2017": {"6.3": 28974, "10 1P": 26327, "10": 34870, "16": 39389, "25": 52580, "63": 89650, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+        "2018": {"6.3": 28974, "10 1P": 26327, "10": 34870, "16": 39389, "25": 52580, "63": 89650, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+        "2019": {"6.3": 28974, "10 1P": 34723, "10": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 239569, "300": 278025, "500": 664732},
+        "2020": {"6.3": 28974, "10 1P": 34723, "10": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 192668, "300": 278025, "500": 798600},
+        "2021": {"6.3": 28974, "10 1P": 34723, "10": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 218999, "300": 278025, "500": 798600},
+        "2022": {"6.3": 28974, "10 1P": 34723, "10": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 170056, "200": 283045, "300": 278025, "500": 1150716},
+        "2023": {"6.3": 28974, "10 1P": 34723, "10": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 170056, "200": 283045, "300": 278025, "500": 1150716},
+        "2024": {"6.3": 29553, "10 1P": 44000, "10": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 346951, "300": 278025, "500": 1540229},
+        "2025": {"6.3": 29553, "10 1P": 44000, "10": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 360639, "300": 278025, "500": 1540229},
+        "2026": {"6.3": 29553, "10 1P": 44000, "10": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 360639, "300": 278025, "500": 1540229}
+    };
+
+    if (!mfgDateInput) return;
+
+    const mfgDate = new Date(mfgDateInput);
+    const today = new Date();
+    const year = mfgDate.getFullYear().toString();
+    
+    // Calculate difference in days
+    const diffTime = Math.abs(today - mfgDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Match year and KVA
+    let originalValue = 0;
+    if (tfData[year] && tfData[year][kva] !== undefined) {
+        originalValue = tfData[year][kva];
+    }
+
+    // Pro-rated depreciation calculation
+    let depAmount = originalValue * ratePerAnnum * (diffDays / 365);
+    
+    // Cap depreciation at 90% (Standard)
+    if (depAmount > (originalValue * 0.9)) {
+        depAmount = originalValue * 0.9;
+    }
+
+    const presentValue = originalValue - depAmount;
+
+    // Display Results
+    document.getElementById('r-val').innerText = originalValue ? originalValue.toLocaleString('en-IN') : "Data N/A";
+    document.getElementById('r-dep-amt').innerText = Math.round(depAmount).toLocaleString('en-IN');
+    document.getElementById('r-pres').innerText = Math.round(presentValue).toLocaleString('en-IN');
+}
+
+    // --- TAB 2 LOGIC (FROM YOUR PROVIDED CODE) ---
+    const materials={
+        1:{name:"6.3KVA T/Fs",rate:29553,labour:119.5,minQty:1},
+    2:{name:"10KVA T/Fs",rate:54993,labour:119.5,minQty:1},
+    3:{name:"16KVA T/Fs",rate:63864,labour:119.5,minQty:1},
+    4:{name:"25KVA T/Fs ",rate:77932,labour:119.5,minQty:1},
+    5:{name:"63KVA T/Fs",rate:145613,labour:119.5,minQty:1},
+    6:{name:"100KVA T/Fs",rate:185926,labour:137.5,minQty:1},
+    7:{name:"200KVA T/Fs",rate:360639,labour:137.5,minQty:1},
+    8:{name:"300KVA T/Fs",rate:278025,labour:137.5,minQty:1},
+    9:{name:"315KVA T/Fs",rate:631400,labour:137.5,minQty:1},
+    10:{name:"500KVA T/Fs",rate:1540229,labour:137.5,minQty:1},
+    11:{name:"10KVA 1Ph T/Fs",rate:44000,labour:119.5,minQty:1},
+    12:{name:"25KVA 1Ph T/Fs",rate:85713,labour:119.5,minQty:1},
+    13:{name:"PCC Pole 9 Mtr. ",rate:3692,labour:17,minQty:1},
+    14:{name:"PCC Pole 11 Mtr.",rate:8204,labour:21.25,minQty:1},
+    15:{name:"ACSR 30mm2  ( Weasel )",rate:39,labour:0.06135,minQty:1},
+    16:{name:"ACSR 50mm2 ( Rabbit )",rate:66.366,labour:0.06135,minQty:1},
+    17:{name:"ACSR 80 mm2  ( Raccoon )",rate:110,labour:0.106,minQty:1},
+    18:{name:"ACSR100 mm2 ( Dog )",rate:117,labour:0.11997,minQty:1},
+    19:{name:"Stay Set Complete",rate:445,labour:7.5,minQty:1},
+    20:{name:"GSS wire",rate:93.133,labour:0,minQty:1},
+    21:{name:"HT Guy Insulator (9000 Kg.)",rate:49,labour:0,minQty:1},
+    22:{name:"LT Guy Insulator (4500 Kg.)",rate:10,labour:0,minQty:1},
+    23:{name:"Shackle Insulator",rate:20,labour:0,minQty:1},
+    24:{name:"D Strap",rate:9,labour:0,minQty:1},
+    25:{name:"MS Channel 100 x50mm",rate:90.86,labour:0,minQty:1},
+    26:{name:"MS Channel 75x40mm",rate:92.158,labour:0,minQty:1},
+    27:{name:"MS Angle 65x65x6mm",rate:84.746,labour:0,minQty:1},
+    28:{name:"MS Angle 50x50x6mm",rate:84.746,labour:0,minQty:1},
+    29:{name:"MS Flat 40x6mm",rate:83.072,labour:0,minQty:1},
+    30:{name:"MS Flat 50x6mm",rate:83.072,labour:0,minQty:1},
+    31:{name:"GI Pins",rate:176,labour:0,minQty:1},
+    32:{name:"Pin Insulators",rate:113,labour:0,minQty:1},
+    33:{name:"Top Hamper",rate:195,labour:0,minQty:1},
+    34:{name:"V-Shape X-Arms",rate:802,labour:0,minQty:1},
+    35:{name:"11 KV Disc Insulators",rate:156,labour:0,minQty:1},
+    36:{name:"Dead end Clamps 30 to 80mm2",rate:312,labour:0,minQty:1},
+    37:{name:"GSL 4mm",rate:96.307,labour:0,minQty:1},
+    38:{name:"Earth Rod ",rate:602,labour:6.75,minQty:1},
+    39:{name:"HT Fuse Unit",rate:1749,labour:0,minQty:1},
+    40:{name:"LT Fuse Unit",rate:580,labour:0,minQty:1},
+    41:{name:"GO Switch 75 Amps",rate:6490,labour:33.1,minQty:1},
+    42:{name:"GO Switch 400 Amps",rate:12790,labour:33.1,minQty:1},
+    43:{name:"PG Clamps 30 to 80mm2",rate:113,labour:0,minQty:1},
+    44:{name:"RCC anchor Plates",rate:220,labour:0,minQty:1},
+    45:{name:"Single Core LT Cable 95mm2",rate:118.073,labour:0,minQty:1},
+    46:{name:"Single Core LT Cable 150 mm2",rate:164.065,labour:0,minQty:1},
+    47:{name:"2 Core PVC 6 mm2",rate:17.93,labour:0,minQty:1},
+    48:{name:"2 Core 10 mm2",rate:38,labour:0,minQty:1},
+    49:{name:"4 Core XLPE LT Cable 10 mm2",rate:85,labour:0,minQty:1},
+    50:{name:"4 Core XLPE LT Cable 16 mm2",rate:94,labour:0,minQty:1},
+    51:{name:"4 Core XLPE LT Cable 25mm2",rate:150,labour:0,minQty:1},
+    52:{name:"4 Core XLPE LT Cable 50mm2",rate:255,labour:0,minQty:1},
+    53:{name:"4 Core XLPE LT Cable 95 mm2",rate:452.76,labour:0,minQty:1},
+    54:{name:"4 Core XLPE LT Cable 150 mm2",rate:674.619,labour:0,minQty:1},
+    55:{name:"11 KV XLPE CABLE 3/C 35MM2",rate:470.8,labour:0.744,minQty:1},
+    56:{name:"11 KV XLPE CABLE 3/C 150MM2",rate:1013.606,labour:1.0503,minQty:1},
+    57:{name:"11 KV XLPE CABLE 3/C 300MM2",rate:1644.027,labour:1.0503,minQty:1},
+    58:{name:"11 KV Cable box O/D 35 mm2",rate:832,labour:11.75,minQty:1},
+    59:{name:"11 KV Cable box O/D 150 mm2",rate:814,labour:11.75,minQty:1},
+    60:{name:"11 KV Cable box O/D 300 mm2",rate:1095,labour:11.75,minQty:1},
+    61:{name:"11 KV Cable box I/D 35 mm2",rate:605,labour:11.75,minQty:1},
+    62:{name:"11 KV Cable box I/D 150 mm2",rate:756,labour:11.75,minQty:1},
+    63:{name:"11 KV Cable box I/D 300 mm2",rate:1000,labour:11.75,minQty:1},
+    64:{name:"MS NUT & BOLT 12X40MM",rate:83,labour:0,minQty:1},
+    65:{name:"MS NUT & BOLT 12X125MM",rate:76.573,labour:0,minQty:1},
+    66:{name:"MS NUT & BOLT 12X175MM",rate:102.502,labour:0,minQty:1},
+    67:{name:"MS NUT & BOLT 12X200MM",rate:102.502,labour:0,minQty:1},
+    68:{name:"MS NUT & BOLT 12X225MM",rate:102.502,labour:0,minQty:1},
+    69:{name:"MS NUT & BOLT 16X55MM",rate:101.204,labour:0,minQty:1},
+    70:{name:"MS NUT & BOLT 16X200MM",rate:76.573,labour:0,minQty:1},
+    71:{name:"CTPT 10/5",rate:75750,labour:0,minQty:1},
+    72:{name:"CTPT 20/5",rate:75750,labour:0,minQty:1},
+    73:{name:"CT PT 30/5",rate:75750,labour:0,minQty:1},
+    74:{name:"CT PT 50/5",rate:75000,labour:0,minQty:1},
+    75:{name:"CT PT 75/5",rate:75000,labour:0,minQty:1},
+    76:{name:"CT PT 100/5",rate:75000,labour:0,minQty:1},
+    77:{name:"CT PT 200/5",rate:75000,labour:0,minQty:1},
+    79:{name:"ACSR 13MM2",rate:0,labour:0,minQty:0},
+    80:{name:"ACSR 20MM2",rate:0,labour:0,minQty:0},
+    81:{name:"PCC POLL 8MTR",rate:0,labour:0,minQty:0},
+    };
+
+    let matCount=0;
+    let deletedAutoRows = new Set();
+    let manualOverriddenQtys = {}; 
+
+    function addRow(){
+        matCount++;
+        const newRow = `<tr>
+            <td>${matCount}</td>
+            <td><input class="tab2-input mat-input" list="ml_${matCount}" data-row-id="${matCount}" onfocus="updateDropdowns()" oninput="handleInput(this)"><datalist id="ml_${matCount}"></datalist></td>
+            <td><input class="tab2-input rate" readonly></td>
+            <td><input class="tab2-input qty" oninput="calc()"></td>
+            <td><input class="tab2-input dismental" oninput="calc()"></td>
+            <td><input class="tab2-input return" oninput="validateLogic(this)"></td>
+            <td><input class="tab2-input reuse" oninput="validateLogic(this)"></td>
+            <td class="amt">0</td>
+        </tr>`;
+        document.getElementById('tableBody').insertAdjacentHTML('beforeend', newRow);
+        updateDropdowns();
+    }
+
+    function handleInput(input) {
+        const mat = Object.values(materials).find(m => m.name === input.value);
+        const r = input.closest("tr");
+        if(mat) { r.querySelector(".rate").value = mat.rate; r.querySelector(".qty").value = 1; } 
+        else { r.querySelector(".rate").value = ""; r.querySelector(".qty").value = ""; }
+        calc();
+        updateDropdowns();
+    }
+
+    function validateLogic(input) {
+        const r = input.closest("tr");
+        const dis = +r.querySelector(".dismental").value || 0;
+        const ret = +r.querySelector(".return").value || 0;
+        const reuse = +r.querySelector(".reuse").value || 0;
+        if ((ret + reuse) > dis) {
+            document.getElementById("errorAlert").style.display = "block";
+            input.value = input.classList.contains('return') ? dis - reuse : dis - ret;
+            setTimeout(() => document.getElementById("errorAlert").style.display = "none", 3000);
+        }
+        calc();
+    }
+
+    function calc(){
+        const labBody = document.getElementById('labourBody');
+        labBody.innerHTML = ""; 
+        document.querySelectorAll("#tableBody tr").forEach(r => {
+            const nameInput = r.querySelector(".mat-input");
+            const rowId = nameInput.getAttribute('data-row-id');
+            if(!nameInput.value) return;
+            const m = Object.values(materials).find(x => x.name === nameInput.value);
+            if(!m) return;
+            const qty = +r.querySelector(".qty").value || 0;
+            const dis = +r.querySelector(".dismental").value || 0;
+            const reuse = +r.querySelector(".reuse").value || 0;
+            r.querySelector(".amt").innerText = (m.rate * qty).toFixed(2);
+            if(m.labour > 0) {
+                const types = [{id:'E', label:'E/O', val:qty, rate:m.labour}, {id:'D', label:'D/O', val:dis, rate:m.labour*0.5}, {id:'R', label:'R/O', val:reuse, rate:m.labour}];
+                types.forEach(t => {
+                    const key = `${rowId}-${t.id}`;
+                    if(t.val > 0 && !deletedAutoRows.has(key)) {
+                        const displayQty = manualOverriddenQtys[key] !== undefined ? manualOverriddenQtys[key] : t.val;
+                        labBody.innerHTML += `<tr><td>${t.label} ${m.name}</td><td><input class="tab2-input auto-lab-qty" value="${displayQty}" oninput="manualOverriddenQtys['${key}']=+this.value; finalCalc()"></td><td>${t.rate.toFixed(2)}</td><td class="auto-lab-amt">0</td><td class="no-print"><button class="btn-del" onclick="deletedAutoRows.add('${key}'); this.closest('tr').remove(); finalCalc()">×</button></td></tr>`;
+                    }
+                });
+            }
+        });
+        finalCalc();
+    }
+
+    function finalCalc() {
+        let totalMat = 0, totalLab = 0;
+        document.querySelectorAll("#labourBody tr").forEach(r => {
+            const q = +r.querySelector(".auto-lab-qty").value || 0;
+            const rt = +r.cells[2].innerText || 0;
+            const sub = q * rt; r.querySelector(".auto-lab-amt").innerText = sub.toFixed(2); totalLab += sub;
+        });
+        document.querySelectorAll(".amt").forEach(td => totalMat += (+td.innerText || 0));
+        document.querySelectorAll("#manualLabourBody tr").forEach(r => {
+            const q = +r.querySelector(".m-qty").value || 0, rt = +r.querySelector(".m-rate").value || 0;
+            const sub = q * rt; r.querySelector(".m-amt").innerText = sub.toFixed(2); totalLab += sub;
+        });
+        document.getElementById('materialTotal').innerText = totalMat.toFixed(2);
+        const overhead = totalMat * 0.015;
+        const tempTotal = totalMat + overhead;
+        let roundedTotal = totalMat < 10000 ? Math.ceil(tempTotal / 100) * 100 : Math.ceil(tempTotal / 1000) * 1000;
+        document.getElementById('sundry').innerText = (roundedTotal - totalMat).toFixed(2);
+        document.getElementById('subTotal').innerText = roundedTotal.toFixed(2);
+        document.getElementById('labourTotal').innerText = totalLab.toFixed(2);
+        const labSpecial = totalLab * 54;
+        document.getElementById('labourSpecial').innerText = labSpecial.toFixed(2);
+        const labWithGst = labSpecial * 1.18;
+        document.getElementById('totalLabourLeft').innerText = labWithGst.toFixed(2);
+        document.getElementById('totalLabourSummary').innerText = labWithGst.toFixed(2);
+        const cstVal = roundedTotal * 0.05;
+        document.getElementById('cst').innerText = cstVal.toFixed(2);
+        document.getElementById('grandTotal').innerText = (roundedTotal + cstVal + labWithGst).toFixed(0);
+    }
+
+    function updateDropdowns() {
+        const selected = Array.from(document.querySelectorAll('.mat-input')).map(i => i.value).filter(v => v !== "");
+        document.querySelectorAll('datalist').forEach(dl => {
+            const current = dl.previousElementSibling.value;
+            dl.innerHTML = Object.values(materials).filter(m => !selected.includes(m.name) || m.name === current).map(m => `<option value="${m.name}">`).join("");
+        });
+    }
+
+    function addManualLabour() {
+        document.getElementById('manualLabourBody').insertAdjacentHTML('beforeend', `<tr><td><input class="tab2-input" placeholder="Custom Labour..."></td><td><input class="tab2-input m-qty" value="1" oninput="finalCalc()"></td><td><input class="tab2-input m-rate" value="0" oninput="finalCalc()"></td><td class="m-amt">0.00</td><td class="no-print"><button class="btn-del" onclick="this.closest('tr').remove(); finalCalc();">×</button></td></tr>`);
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('print-area');
+        const opt = { margin: 0.5, filename: 'Estimation.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // Initialize rows for Tab 2
+    for(let i=0;i<12;i++) addRow();
+
+    // --- TAB 2 LOGIC (FROM YOUR PROVIDED CODE) ---
+function generateTab4PDF() {
+            // Mapping values to PDF
+            document.getElementById('p_subdiv').innerText = document.getElementById('t4_subdiv').value;
+            document.getElementById('p_name').innerText = document.getElementById('t4_name').value;
+            document.getElementById('p_name2').innerText = document.getElementById('t4_name').value;
+            document.getElementById('p_ext').innerText = document.getElementById('t4_ext_tf').value;
+            document.getElementById('p_ext2').innerText = document.getElementById('t4_ext_tf').value;
+            document.getElementById('p_prop').innerText = document.getElementById('t4_prop_tf').value;
+            document.getElementById('p_village').innerText = document.getElementById('t4_village').value;
+            document.getElementById('p_village2').innerText = document.getElementById('t4_village').value;
+            document.getElementById('p_prev').innerText = document.getElementById('t4_prev_load').value;
+            document.getElementById('p_new').innerText = document.getElementById('t4_new_load').value;
+            document.getElementById('p_ba_no').innerText = document.getElementById('t4_ba_no').value;
+            document.getElementById('p_ba_date').innerText = document.getElementById('t4_ba_date').value;
+            document.getElementById('p_amt').innerText = document.getElementById('t4_amt').value;
+            document.getElementById('p_feeder').innerText = document.getElementById('t4_feeder').value;
+            document.getElementById('p_serial').innerText = document.getElementById('t4_serial').value;
+            document.getElementById('p_make').innerText = document.getElementById('t4_make').value;
+            document.getElementById('p_inst').innerText = document.getElementById('t4_inst_date').value;
+
+            // PDF Generation Options
+            const element = document.getElementById('pdf-template');
+            element.style.display = 'block'; // Temporarily show to capture
+            
+            const opt = {
+                margin:       0.5,
+                filename:     'Dismantlement_Report.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = 'none'; // Hide again
+            });
+        }
+// Logic for Tab 3
+let t3MatCount = 0;
+let t3DeletedAutoRows = new Set();
+let t3ManualOverriddenQtys = {};
+
+function addT3Row() {
+    t3MatCount++;
+    const row = `<tr data-id="${t3MatCount}">
+        <td>${t3MatCount}</td>
+        <td><input class="t3-mat-input" list="t3_ml_${t3MatCount}" oninput="handleT3Input(this)"><datalist id="t3_ml_${t3MatCount}"></datalist></td>
+        <td><input class="t3-rate" readonly></td>
+        <td><input class="t3-qty" oninput="calcT3()"></td>
+        <td><input class="t3-dismental" oninput="calcT3()"></td>
+        <td><input class="t3-return" oninput="validateT3Logic(this)"></td>
+        <td><input class="t3-reuse" oninput="validateT3Logic(this)"></td>
+        <td class="t3-amt">0.00</td>
+    </tr>`;
+    document.getElementById('t3-tableBody').insertAdjacentHTML('beforeend', row);
+    updateT3Dropdowns();
+}
+
+function handleT3Input(input) {
+    const mat = Object.values(materials).find(m => m.name === input.value);
+    const r = input.closest("tr");
+    if(mat) { r.querySelector(".t3-rate").value = mat.rate; r.querySelector(".t3-qty").value = 1; }
+    calcT3();
+    updateT3Dropdowns();
+}
+
+function validateT3Logic(input) {
+    const r = input.closest("tr");
+    const dis = +r.querySelector(".t3-dismental").value || 0;
+    const ret = +r.querySelector(".t3-return").value || 0;
+    const reuse = +r.querySelector(".t3-reuse").value || 0;
+    if ((ret + reuse) > dis) {
+        document.getElementById("errorAlert").style.display = "block";
+        input.value = dis - (input.classList.contains('t3-return') ? reuse : ret);
+        setTimeout(() => { document.getElementById("errorAlert").style.display = "none"; }, 3000);
+    }
+    calcT3();
+}
+
+function calcT3() {
+    const labBody = document.getElementById('t3-labourBody');
+    labBody.innerHTML = "";
+    document.querySelectorAll("#t3-tableBody tr").forEach(r => {
+        const rowId = r.getAttribute('data-id');
+        const name = r.querySelector(".t3-mat-input").value;
+        const m = Object.values(materials).find(x => x.name === name);
+        if(!m) return;
+
+        const qty = +r.querySelector(".t3-qty").value || 0;
+        const dis = +r.querySelector(".t3-dismental").value || 0;
+        const reuse = +r.querySelector(".t3-reuse").value || 0;
+        r.querySelector(".t3-amt").innerText = (m.rate * qty).toFixed(2);
+
+        if(m.labour > 0) {
+            const types = [{id:'E', label:'E/O', val:qty, rate:m.labour}, {id:'D', label:'D/O', val:dis, rate:m.labour*0.5}, {id:'R', label:'R/O', val:reuse, rate:m.labour}];
+            types.forEach(t => {
+                const key = `${rowId}-${t.id}`;
+                if(t.val > 0 && !t3DeletedAutoRows.has(key)) {
+                    labBody.innerHTML += `<tr>
+                        <td>${t.label} ${m.name}</td>
+                        <td><input class="t3-auto-lab-qty" value="${t.val}" oninput="finalCalcT3()"></td>
+                        <td>${t.rate.toFixed(2)}</td>
+                        <td class="t3-auto-lab-amt">${(t.val * t.rate).toFixed(2)}</td>
+                        <td class="no-print"><button class="btn-del" onclick="this.closest('tr').remove(); t3DeletedAutoRows.add('${key}'); finalCalcT3();">×</button></td>
+                    </tr>`;
+                }
+            });
+        }
+    });
+    finalCalcT3();
+}
+
+function finalCalcT3() {
+    // Step 1: Material Total
+    let materialTotal = 0;
+    document.querySelectorAll(".t3-amt").forEach(td => materialTotal += (+td.innerText || 0));
+
+    // Step 2: Sundry (Adjusted) - Using your existing rounding logic
+    const overhead = materialTotal * 0.015;
+    const tempTotal = materialTotal + overhead;
+    let totalWithSundry = materialTotal < 10000 ? Math.ceil(tempTotal / 100) * 100 : Math.ceil(tempTotal / 1000) * 1000;
+    let sundry = materialTotal > 0 ? (totalWithSundry - materialTotal) : 0;
+
+    // Step 3: Total 1 (1 + 2)
+    const step3_total1 = materialTotal + sundry;
+
+    // Step 4: C/S/T 5% on 3
+    const step4_cst = step3_total1 * 0.05;
+
+    // Step 5: Total 2 (3 + 4)
+    const step5_total2 = step3_total1 + step4_cst;
+
+    // Step 6: 4% on 5
+    const step6_fourPercent = step5_total2 * 0.04;
+
+    // Step 7: Total 3 (5 + 6)
+    const step7_total3 = step5_total2 + step6_fourPercent;
+
+    // Step 8: Fabrication (Rate 28 * Qty)
+    const fabQty = +document.getElementById('t3-fab-qty').value || 0;
+    const step8_fabAmt = fabQty * 28;
+
+    // Step 9: Labour (Same as earlier: Base Labour Sum * 54)
+    let baseLabSum = 0;
+    document.querySelectorAll("#t3-labourBody tr, #t3-manualLabourBody tr").forEach(r => {
+        const q = +(r.querySelector(".t3-auto-lab-qty") || r.querySelector(".t3-m-qty")).value || 0;
+        const rate = +(r.cells[2].innerText || (r.querySelector(".t3-m-rate") ? r.querySelector(".t3-m-rate").value : 0)) || 0;
+        baseLabSum += (q * rate);
+    });
+    const step9_labour54 = baseLabSum * 54;
+
+    // Step 10: Total 4 (7 + 8 + 9)
+    const step10_total4 = step7_total3 + step8_fabAmt + step9_labour54;
+
+    // Step 11: 2.5% on 10
+    const step11_cont = step10_total4 * 0.025;
+
+    // Step 12: Total 5 (10 + 11)
+    const step12_total5 = step10_total4 + step11_cont;
+
+    // Step 13: GST 18% on 12
+    const step13_gst = step12_total5 * 0.18;
+
+    // Step 14: Grand Total (12 + 13)
+    const step14_grand = step12_total5 + step13_gst;
+
+    // UPDATE UI
+    document.getElementById('t3-mat-raw').innerText = materialTotal.toFixed(2);
+    document.getElementById('t3-sundry-val').innerText = sundry.toFixed(2);
+    document.getElementById('t3-total1').innerText = step3_total1.toFixed(2);
+    document.getElementById('t3-cst').innerText = step4_cst.toFixed(2);
+    document.getElementById('t3-total2').innerText = step5_total2.toFixed(2);
+    document.getElementById('t3-four-percent').innerText = step6_fourPercent.toFixed(2);
+    document.getElementById('t3-total3').innerText = step7_total3.toFixed(2);
+    document.getElementById('t3-fab-amt').innerText = step8_fabAmt.toFixed(2);
+    document.getElementById('t3-labour-54').innerText = step9_labour54.toFixed(2);
+    document.getElementById('t3-total4').innerText = step10_total4.toFixed(2);
+    document.getElementById('t3-cont').innerText = step11_cont.toFixed(2);
+    document.getElementById('t3-total5').innerText = step12_total5.toFixed(2);
+    document.getElementById('t3-gst').innerText = step13_gst.toFixed(2);
+    document.getElementById('t3-grandTotal').innerText = Math.round(step14_grand).toLocaleString('en-IN');
+}
+function addT3ManualLabour() {
+    const html = `<tr><td><input placeholder="Custom Labour..."></td><td><input class="t3-m-qty" value="1" oninput="finalCalcT3()"></td><td><input class="t3-m-rate" value="0" oninput="finalCalcT3()"></td><td>0.00</td><td class="no-print"><button class="btn-del" onclick="this.closest('tr').remove(); finalCalcT3();">×</button></td></tr>`;
+    document.getElementById('t3-manualLabourBody').insertAdjacentHTML('beforeend', html);
+}
+
+function updateT3Dropdowns() {
+    document.querySelectorAll('.t3-mat-input').forEach(dl => {
+        const list = dl.nextElementSibling;
+        list.innerHTML = Object.values(materials).map(m => `<option value="${m.name}">`).join("");
+    });
+}
+
+// Init
+for(let i=0; i<12; i++) addT3Row();
+</script>
+
+</body>
+</html>
