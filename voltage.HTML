@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <title>PSPCL_Voltage_Drop_Report</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { 
+            --primary: #1e3a8a; 
+            --accent: #3b82f6;
+            --bg: #f1f5f9;
+            --border: #cbd5e1;
+            --success: #059669;
+            --danger: #dc2626;
+            --whatsapp: #25d366;
+            --youtube: #ff0000;
+        }
+        
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: var(--bg); color: #1e293b; line-height: 1.5; }
+
+        /* Tutorial Header */
+        .tutorial-container { max-width: 950px; width: 90%; margin: 15px auto; background: #fff; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+        .yt-btn { display: block; background: var(--youtube); color: white; text-align: center; padding: 12px; text-decoration: none; font-weight: 800; font-size: 14px; }
+        .instructions { padding: 15px; font-size: 13px; background: #fffdf0; border-bottom: 1px solid #f0e68c; }
+        .instructions b { color: var(--primary); }
+
+        .page-container { overflow: auto; padding: 10px 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        #pdf-wrapper { background: white; padding: 0; margin: 0; }
+        .a4-page { width: 210mm; min-height: 297mm; background: white; padding: 25px; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 4px; transform-origin: top left; transition: transform 0.2s ease; }
+
+        .pspcl-header { text-align: center; color: #000; font-size: 28px; font-weight: 900; margin-bottom: 15px; }
+        .work-name-container { margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .work-label { font-size: 11px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .work-input { border: none; width: 100%; font-size: 18px; font-weight: 600; outline: none; background: transparent; color: #000; }
+
+        .no-print-zone-top { max-width: 950px; width: 90%; margin: 0 auto 15px auto; padding: 20px; background: #fff; border-radius: 8px; border: 1px solid var(--border); }
+        .header-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+        
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        .control-group label { font-size: 11px; font-weight: bold; }
+
+        table { border-collapse: collapse; width: 100%; font-size: 14px; table-layout: fixed; margin-top: 10px; }
+        th { background-color: var(--primary); color: white; padding: 10px 5px; border: 1px solid #fff; font-size: 12px; }
+        td { border: 1px solid var(--border); padding: 6px 4px; text-align: center; }
+        
+        input[type="number"], select { padding: 4px; border: 1px solid var(--border); border-radius: 4px; width: 100%; font-size: 13px; box-sizing: border-box; }
+        
+        .action-button-row { display: flex; justify-content: center; gap: 10px; margin-top: 20px; width: 210mm; padding-bottom: 40px; }
+        
+        .btn-large { padding: 12px 15px; font-size: 13px; font-weight: 800; border-radius: 8px; cursor: pointer; border: none; transition: 0.2s; white-space: nowrap; }
+        .btn-undo { background: #d97706; color: white; }
+        .btn-add-main { background: var(--accent); color: white; }
+        .btn-print { background: var(--primary); color: white; flex: 1; max-width: 150px; }
+        .btn-pdf { background: var(--success); color: white; flex: 1; max-width: 150px; }
+        .btn-wa { background: var(--whatsapp); color: white; flex: 1; max-width: 250px; }
+
+        .row-btn { border: none; background: none; cursor: pointer; font-size: 16px; font-weight: bold; padding: 0 4px; }
+        .row-add { color: var(--success); }
+        .row-del { color: var(--danger); }
+
+        .summary-wrapper { width: 100%; margin-top: 20px; }
+        .summary-container { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border); width: 100%; box-sizing: border-box; }
+        .calc-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; align-items: center; font-size: 14px; }
+        .final-result { background: #eff6ff; padding: 12px; border: 2px solid var(--accent); margin-top: 10px; border-radius: 6px; }
+
+        @media print {
+            .tutorial-container, .no-print-zone-top, .action-button-row, .actions-col { display: none !important; }
+            body { background: white; margin: 0; padding: 0; }
+            .page-container { display: block; padding: 0; overflow: visible; }
+            .a4-page { width: 100% !important; margin: 0 !important; box-shadow: none !important; transform: scale(1) !important; padding: 10mm !important; }
+            td:last-child, th:last-child { display: none !important; }
+            table { width: 100% !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="tutorial-container">	
+    <a href="YOUR_YOUTUBE_LINK_HERE" target="_blank" class="yt-btn">▶ WATCH VIDEO TUTORIAL (YouTube)</a>
+        </div>
+</div>
+
+<div class="no-print-zone-top">
+    <div class="header-row">
+        <div style="display:flex; gap:10px;">
+            <button class="btn-large btn-undo" onclick="undoLastAction()">↺ UNDO</button>
+            <div class="control-group" style="border-left: 2px solid #eee; padding-left: 10px;">
+                <label>ZOOM:</label>
+                <select id="zoomSelect" style="width: 80px; height: 35px; font-weight: bold;" onchange="adjustZoom(this.value)">
+                    <option value="110">110%</option>
+                    <option value="100" selected>100%</option>
+                    <option value="95">95%</option>
+                    <option value="90">90%</option>
+                    <option value="80">80%</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-end;">
+            <div class="control-group"><label>To Point:</label><select id="targetPointSelect" style="width: 70px; height: 35px; font-weight: bold;"></select></div>
+            <div class="control-group"><label>Cable Spec:</label><select id="initialCableSize" style="width: 150px; height: 35px;"></select></div>
+            <button class="btn-large btn-add-main" onclick="appendSegments()">+ ADD RANGE</button>
+        </div>
+    </div>
+</div>
+
+<div class="page-container">
+    <div id="pdf-wrapper">
+        <div class="a4-page" id="printable-area">
+            <div class="pspcl-header">ਪੰਜਾਬ ਸਟੇਟ ਪਾਵਰ ਕਾਰਪੋਰੇਸ਼ਨ ਲਿਮਟਿਡ</div>
+            <div class="work-name-container"><div class="work-label">NAME OF WORK:</div><input type="text" id="workTitle" class="work-input" placeholder="Enter Work Description here..."></div>
+            <table id="calcTable">
+                <thead>
+                    <tr><th style="width: 16%;">Segment</th><th style="width: 34%;">Cable Spec (k)</th><th style="width: 13%;">Load(A)</th><th style="width: 13%;">Len(m)</th><th style="width: 14%;">Drop(V)</th><th class="actions-col" style="width: 10%;">Modify</th></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="summary-wrapper">
+                <div class="summary-container">
+                    <div class="calc-row"><span style="font-weight:600;">Max Demand (MD):</span><span style="width: 120px;"><input type="number" id="mdInput" value="0" oninput="calculate()"></span></div>
+                    <div class="calc-row"><span>Total Voltage Drop (ΣVd):</span><span id="totalDropDisplay" style="font-weight: bold;">0.000 V</span></div>
+                    <div class="calc-row"><span>D.F. = (√3 × 11 × <span id="fig-md">0</span>) / <span id="fig-load1">0</span></span><span id="dfResult" style="font-weight: bold;">0.0000</span></div>
+                    <div class="calc-row"><span>DF1 = <span id="fig-df">0</span> × <span id="fig-tdrop">0</span></span><span id="df1Result" style="font-weight: bold;">0.0000</span></div>
+                    <div class="calc-row final-result"><span style="font-weight: bold; color: var(--primary);">Actual VD % = (<span id="fig-df1">0</span> × 100) / (11000 - <span id="fig-df1-alt">0</span>)</span><span id="actualVDResult" style="font-weight: 800; color: var(--danger); font-size: 18px;">0.0000 %</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="action-button-row no-print-zone">
+        <button class="btn-large btn-print" onclick="window.print()">🖨️ PRINT</button>
+        <button class="btn-large btn-pdf" onclick="saveAsPDF()">💾 SAVE PDF</button>
+        <button class="btn-large btn-wa" onclick="sharePDFToWhatsApp()">💬 SHARE PDF ON WHATSAPP</button>
+    </div>
+</div>
+
+<script>
+    // [LOGIC REMAINS IDENTICAL TO PREVIOUS VERSION FOR CONSISTENCY]
+    let historyStack = [];
+    const cableLibrary = [
+        { size: "XLPE 35MM²", factor: 0.091 }, { size: "XLPE 150MM²", factor: 0.0254 },
+        { size: "XLPE 50MM²", factor: 0.00685 }, { size: "XLPE 185MM²", factor: 0.0211 },
+        { size: "XLPE 70MM²", factor: 0.0491 }, { size: "XLPE 240MM²", factor: 0.017 },
+        { size: "XLPE 95MM²", factor: 0.0367 }, { size: "XLPE 300MM²", factor: 0.0145 },
+        { size: "XLPE 120MM²", factor: 0.0301 }, { size: "ACSR 30MM²", factor: 0.1017 },
+    	{ size: "ACSR 50MM²", factor: 0.0669 }, { size: "ACSR 80MM²", factor: 0.0497 },
+	{ size: "ACSR 100MM²", factor: 0.0408 },
+    ];
+
+    function adjustZoom(val) { document.getElementById('printable-area').style.transform = `scale(${val / 100})`; }
+    async function sharePDFToWhatsApp() {
+        const element = document.getElementById('pdf-wrapper');
+        const workName = document.getElementById('workTitle').value || 'PSPCL_Report';
+        const fileName = workName.replace(/\s+/g, '_') + '.pdf';
+        const actionCols = document.querySelectorAll('.actions-col, td:last-child');
+        actionCols.forEach(el => el.style.display = 'none');
+        const opt = { margin: 5, filename: fileName, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        try {
+            const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+            actionCols.forEach(el => el.style.display = 'table-cell');
+            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'PSPCL Voltage Drop Report' });
+            } else { alert("Browser sharing not supported."); }
+        } catch (err) { actionCols.forEach(el => el.style.display = 'table-cell'); }
+    }
+    function saveAsPDF() {
+        const element = document.getElementById('pdf-wrapper');
+        const workName = document.getElementById('workTitle').value || 'PSPCL_Report';
+        const actionCols = document.querySelectorAll('.actions-col, td:last-child');
+        actionCols.forEach(el => el.style.display = 'none');
+        const opt = { margin: 5, filename: workName.replace(/\s+/g, '_') + '.pdf', image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        html2pdf().set(opt).from(element).save().then(() => { actionCols.forEach(el => el.style.display = 'table-cell'); });
+    }
+    function getPointLabel(index) { let label = String.fromCharCode(65 + (index % 26)); let primes = "'".repeat(Math.floor(index / 26)); return label + primes; }
+    function updateDropdown() { const select = document.getElementById('targetPointSelect'); const currentRows = document.querySelectorAll('#tableBody tr').length; select.innerHTML = ""; for (let i = currentRows + 1; i <= currentRows + 15; i++) { select.add(new Option(getPointLabel(i), i)); } }
+    function saveHistory() { historyStack.push(document.getElementById('tableBody').innerHTML); if(historyStack.length > 15) historyStack.shift(); }
+    function undoLastAction() { if (historyStack.length > 0) { document.getElementById('tableBody').innerHTML = historyStack.pop(); calculate(); } }
+    function createRow(idx, factor) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="seg-label" style="font-weight:bold;"></td>
+            <td><select onchange="calculate()">${cableLibrary.map(c => `<option value="${c.factor}" ${c.factor == factor ? 'selected' : ''}>${c.size} (k=${c.factor})</option>`).join('')}</select></td>
+            <td><input type="number" class="load" value="0" oninput="calculate()"></td>
+            <td><input type="number" class="length" value="0" oninput="calculate()"></td>
+            <td class="res" style="font-weight:bold;">0.000</td>
+            <td class="actions-col">
+                <button class="row-btn row-add" onclick="addRowBelow(this)">+</button>
+                <button class="row-btn row-del" onclick="saveHistory(); this.closest('tr').remove(); calculate();">×</button>
+            </td>
+        `; return tr;
+    }
+    function addRowBelow(btn) { saveHistory(); const currentRow = btn.closest('tr'); const factor = document.getElementById('initialCableSize').value; const newRow = createRow(0, factor); currentRow.parentNode.insertBefore(newRow, currentRow.nextSibling); calculate(); }
+    function appendSegments() { saveHistory(); const targetIdx = parseInt(document.getElementById('targetPointSelect').value); const factor = document.getElementById('initialCableSize').value; const body = document.getElementById('tableBody'); let currentRows = body.querySelectorAll('tr').length; while(currentRows < targetIdx) { body.appendChild(createRow(currentRows, factor)); currentRows++; } calculate(); }
+    function calculate() {
+        const rows = document.querySelectorAll('#tableBody tr');
+        let totalDrop = 0, load1 = 0;
+        rows.forEach((row, i) => {
+            row.querySelector('.seg-label').innerText = `${getPointLabel(i)}-${getPointLabel(i+1)}`;
+            const f = parseFloat(row.querySelector('select').value) || 0;
+            const l = parseFloat(row.querySelector('.load').value) || 0;
+            const len = parseFloat(row.querySelector('.length').value) || 0;
+            if(i === 0) load1 = l;
+            const d = f * l * len; row.querySelector('.res').innerText = d.toFixed(3); totalDrop += d;
+        });
+        const md = parseFloat(document.getElementById('mdInput').value) || 0;
+        const df = load1 > 0 ? (1.732 * 11 * md) / load1 : 0;
+        const df1 = df * totalDrop;
+        const vdp = (11000 - df1) !== 0 ? (df1 * 100) / (11000 - df1) : 0;
+        document.getElementById('totalDropDisplay').innerText = totalDrop.toFixed(3) + " V";
+        document.getElementById('fig-md').innerText = md; document.getElementById('fig-load1').innerText = load1;
+        document.getElementById('dfResult').innerText = df.toFixed(4); document.getElementById('fig-df').innerText = df.toFixed(4);
+        document.getElementById('fig-tdrop').innerText = totalDrop.toFixed(3); document.getElementById('df1Result').innerText = df1.toFixed(4);
+        document.getElementById('fig-df1').innerText = df1.toFixed(4); document.getElementById('fig-df1-alt').innerText = df1.toFixed(4);
+        document.getElementById('actualVDResult').innerText = vdp.toFixed(4) + " %";
+        updateDropdown();
+    }
+    window.onload = () => {
+        const cable = document.getElementById('initialCableSize');
+        cableLibrary.forEach(c => cable.options.add(new Option(`${c.size} (k=${c.factor})`, c.factor)));
+        updateDropdown();
+    };
+</script>
+</body>
+</html>

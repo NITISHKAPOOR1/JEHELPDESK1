@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformer Asset Valuation Tool</title>
+    <style>
+        :root {
+            --primary: #1b5e20;
+            --primary-light: #e8f5e9;
+            --accent-red: #b71c1c;
+            --text-main: #263238;
+            --bg-gradient: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-top: 10px solid var(--primary);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .input-box { margin-bottom: 22px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #546e7a;
+        }
+
+        input[type="date"], select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #cfd8dc;
+            border-radius: 12px;
+            font-size: 16px;
+            background: #fafafa;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 10px rgba(27, 94, 32, 0.1);
+        }
+
+        .results-container {
+            margin-top: 30px;
+            background: var(--primary-light);
+            border: 1px solid #c8e6c9;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 18px 25px;
+            border-bottom: 1px solid #c8e6c9;
+        }
+
+        .data-row:last-child {
+            background: white;
+            border-bottom: none;
+            padding: 22px 25px;
+        }
+
+        .label-style { font-size: 0.95rem; color: #455a64; }
+        .val-style { font-weight: 800; font-size: 1.15rem; }
+        .red-text { color: var(--accent-red); }
+        .green-text { color: var(--primary); font-size: 1.4rem; }
+
+        .cap-warning {
+            display: none;
+            text-align: center;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #78909c;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Value Calculator</h2>
+    
+    <div class="input-box">
+        <label>Purchase Date (DD-MM-YYYY)</label>
+        <input type="date" id="dateSelect" onchange="syncKVA()">
+    </div>
+
+    <div class="input-box">
+        <label>KVA Rating</label>
+        <select id="kvaSelect" onchange="performCalculation()">
+            <option value="">-- Enter Date First --</option>
+        </select>
+    </div>
+
+    <div class="results-container">
+        <div class="data-row">
+            <span class="label-style">Original Value:</span>
+            <span id="origDisplay" class="val-style">₹0</span>
+        </div>
+        <div class="data-row">
+            <span class="label-style">Depreciation (Max 90%):</span>
+            <span id="deprDisplay" class="val-style red-text">₹0</span>
+        </div>
+        <div class="data-row">
+            <span class="label-style">Present Book Value:</span>
+            <span id="presentDisplay" class="val-style green-text">₹0</span>
+        </div>
+    </div>
+
+    <div id="capWarning" class="cap-warning">
+        NOTE: Asset has reached maximum 90% depreciation.
+    </div>
+
+    <div class="footer">
+        Based on 5.28% Fixed Rate | Applied to <span id="daysCount">0</span> days.
+    </div>
+</div>
+
+<script>
+    const DB = {
+        "1991": {"25": 15500, "63": 24665, "100": 22870, "200": 65000, "300": 105000},
+        "1992": {"25": 21200, "63": 29575, "100": 40000, "200": 75000, "300": 121000, "500": 158400},
+        "1993": {"25": 24200, "63": 38500, "100": 50600, "200": 88000, "300": 107140, "500": 231000},
+        "1994": {"25": 23219, "63": 39104, "100": 46028, "200": 86063, "300": 98000, "500": 209400},
+        "1995": {"25": 21500, "63": 39104, "100": 43500, "200": 83000, "300": 93400, "500": 215000},
+        "1996": {"25": 19100, "63": 32500, "100": 38900, "200": 72500, "300": 93400, "500": 215000},
+        "1997": {"25": 24413, "63": 39000, "100": 50600, "200": 85000, "300": 101028, "500": 215000},
+        "1998": {"25": 24413, "63": 39000, "100": 50000, "200": 83991, "300": 101028, "500": 193000},
+        "1999": {"25": 24413, "63": 38927, "100": 50192, "200": 83992, "300": 117251, "500": 350000},
+        "2000": {"25": 24800, "63": 40300, "100": 52800, "200": 87837, "300": 117251, "500": 180763},
+        "2001": {"25": 26676, "63": 40300, "100": 52800, "200": 87837, "300": 117000, "500": 181753},
+        "2002": {"25": 26350, "63": 40875, "100": 53770, "200": 87840, "300": 117000, "500": 181000},
+        "2003": {"25": 26350, "63": 40874, "100": 53756, "200": 86335, "300": 117250, "500": 183000},
+        "2004": {"25": 30954, "63": 40878, "100": 52309, "200": 101874, "300": 151800, "500": 239300},
+        "2005": {"25": 38195, "63": 40380, "100": 51489, "200": 101874, "300": 161909, "500": 257562},
+        "2006": {"25": 44816, "63": 52700, "100": 70414, "200": 170949, "300": 228822, "500": 267664},
+        "2007": {"25": 44305, "63": 52700, "100": 70414, "200": 170949, "300": 302000, "500": 267664},
+        "2008": {"6.3": 20551, "10_3PH": 27226, "16": 36452, "25": 30955, "63": 81449, "100": 109495, "200": 225750, "300": 343593, "500": 399900},
+        "2009": {"6.3": 32757, "10_3PH": 40487, "16": 55080, "25": 51335, "63": 86245, "100": 115261, "200": 261874, "300": 265185, "500": 677424},
+        "2010": {"6.3": 24803, "10_3PH": 30762, "16": 41655, "25": 33392, "63": 66365, "100": 88714, "200": 203169, "300": 257250, "500": 491480},
+        "2011": {"6.3": 25813, "10_3PH": 33610, "16": 43000, "25": 34780, "63": 56500, "100": 89610, "200": 194220, "300": 307262, "500": 551010},
+        "2012": {"6.3": 19504, "10_3PH": 30779, "16": 42345, "25": 32701, "63": 55472, "100": 71110, "200": 138645, "300": 207262, "500": 511122},
+        "2013": {"6.3": 24460, "10_3PH": 30152, "16": 43047, "25": 35951, "63": 58398, "100": 83426, "200": 138645, "300": 275800, "500": 521000},
+        "2014": {"6.3": 26896, "10_3PH": 31488, "16": 36010, "25": 43621, "63": 70112, "100": 94914, "200": 189800, "300": 240264, "500": 628309},
+        "2015": {"6.3": 25896, "10_3PH": 31488, "16": 36910, "25": 43621, "63": 70112, "100": 94914, "200": 184800, "300": 240264, "500": 628309},
+        "2016": {"6.3": 28974, "10_1P": 26327, "10_3PH": 34870, "16": 39389, "25": 52580, "63": 86900, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+        "2017": {"6.3": 28974, "10_1P": 26327, "10_3PH": 34870, "16": 39389, "25": 52580, "63": 89650, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+        "2018": {"6.3": 28974, "10_1P": 26327, "10_3PH": 34870, "16": 39389, "25": 52580, "63": 89650, "100": 118738, "200": 190265, "300": 278025, "500": 655677},
+        "2019": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 239569, "300": 278025, "500": 664732},
+        "2020": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 192668, "300": 278025, "500": 798600},
+        "2021": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 142264, "200": 218999, "300": 278025, "500": 798600},
+        "2022": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 170056, "200": 283045, "300": 278025, "500": 1150716},
+        "2023": {"6.3": 28974, "10_1P": 34723, "10_3PH": 41128, "16": 46597, "25": 61852, "63": 117844, "100": 170056, "200": 283045, "300": 278025, "500": 1150716},
+        "2024": {"6.3": 29553, "10_1P": 44000, "10_3PH": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 346951, "300": 278025, "500": 1540229},
+        "2025": {"6.3": 29553, "10_1P": 44000, "10_3PH": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 360639, "300": 278025, "500": 1540229},
+        "2026": {"6.3": 29553, "10_1P": 44000, "10_3PH": 54993, "16": 63864, "25": 77932, "63": 145613, "100": 185926, "200": 360639, "300": 278025, "500": 1540229}
+    };
+
+    const rate = 0.0528;
+
+    function syncKVA() {
+        const val = document.getElementById('dateSelect').value;
+        if (!val) return;
+        const year = new Date(val).getFullYear().toString();
+        const select = document.getElementById('kvaSelect');
+        select.innerHTML = "";
+        
+        if (DB[year]) {
+            Object.keys(DB[year]).forEach(k => {
+                if (DB[year][k] !== null) select.add(new Option(k + " KVA", k));
+            });
+            performCalculation();
+        } else {
+            select.add(new Option("-- No Data --", ""));
+            clearOutputs();
+        }
+    }
+
+    function performCalculation() {
+        const dateStr = document.getElementById('dateSelect').value;
+        const kva = document.getElementById('kvaSelect').value;
+        if (!dateStr || !kva) return;
+
+        const purchase = new Date(dateStr);
+        const today = new Date();
+        const year = purchase.getFullYear().toString();
+        const basePrice = DB[year][kva];
+
+        const dayDiff = Math.floor((today - purchase) / (1000 * 60 * 60 * 24));
+        const age = dayDiff / 365.25;
+
+        // Apply reducing balance formula
+        let currentVal = basePrice * Math.pow((1 - rate), age);
+        
+        // APPLY THE 90% CAP (Minimum 10% Residual)
+        const scrapValue = basePrice * 0.10;
+        let isCapped = false;
+
+        if (currentVal < scrapValue) {
+            currentVal = scrapValue;
+            isCapped = true;
+        }
+
+        const totalDepreciation = basePrice - currentVal;
+
+        // UI Updates
+        document.getElementById('origDisplay').innerText = "₹" + basePrice.toLocaleString();
+        document.getElementById('deprDisplay').innerText = "-₹" + Math.round(totalDepreciation).toLocaleString();
+        document.getElementById('presentDisplay').innerText = "₹" + Math.round(currentVal).toLocaleString();
+        document.getElementById('daysCount').innerText = dayDiff > 0 ? dayDiff.toLocaleString() : 0;
+        document.getElementById('capWarning').style.display = isCapped ? "block" : "none";
+    }
+
+    function clearOutputs() {
+        document.getElementById('origDisplay').innerText = "₹0";
+        document.getElementById('deprDisplay').innerText = "₹0";
+        document.getElementById('presentDisplay').innerText = "₹0";
+        document.getElementById('daysCount').innerText = "0";
+        document.getElementById('capWarning').style.display = "none";
+    }
+</script>
+
+</body>
+</html>

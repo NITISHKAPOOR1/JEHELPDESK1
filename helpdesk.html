@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attractive Helpdesk</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .helpdesk-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            border-top: 8px solid #25d366;
+            transition: transform 0.3s ease;
+        }
+        .helpdesk-card:hover {
+            transform: translateY(-5px);
+        }
+        .icon-box {
+            font-size: 50px;
+            color: #25d366;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #1a2a6c;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        p {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .contact-link {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d32f2f;
+            margin: 20px 0;
+            display: block;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .contact-link:hover {
+            color: #b71c1c;
+        }
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .whatsapp-btn {
+            background: #25d366;
+        }
+        .whatsapp-btn:hover {
+            background: #128c7e;
+            box-shadow: 0 6px 15px rgba(37, 211, 102, 0.4);
+        }
+        .group-btn {
+            background: #3498db;
+        }
+        .group-btn:hover {
+            background: #2980b9;
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+        .btn i {
+            margin-right: 10px;
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="helpdesk-card">
+    <div class="icon-box">
+        <i class="fas fa-headset"></i>
+    </div>
+    <h2>ਸਹਾਇਤਾ ਕੇਂਦਰ (Helpdesk)</h2>
+    <p>ਕਿਸੇ ਵੀ ਤਰ੍ਹਾਂ ਦੀ ਸਪਸ਼ਟਤਾ ਜਾਂ ਜਾਣਕਾਰੀ ਲਈ ਹੇਠਾਂ ਦਿੱਤੇ ਬਟਨ 'ਤੇ ਕਲਿੱਕ ਕਰਕੇ ਸਾਡੇ ਨਾਲ ਸੰਪਰਕ ਕਰੋ।</p>
+    
+    <a href="tel:9988344156" class="contact-link">
+        <i class="fas fa-phone-alt"></i> 9988344156
+    </a>
+
+    <div class="btn-container">
+        <a href="https://wa.me/919988344156?text=ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ, ਮੈਨੂੰ ਕੁਝ ਜਾਣਕਾਰੀ ਚਾਹੀਦੀ ਹੈ।" target="_blank" class="btn whatsapp-btn">
+            <i class="fab fa-whatsapp"></i> ਮਦਦ ਲਈ ਇੱਥੇ ਕਲਿੱਕ ਕਰੋ
+        </a>
+
+        <a href="https://chat.whatsapp.com/HO3bU69SyGEDLqHGpZIZ4S" class="btn group-btn">
+            <i class="fas fa-users"></i> ਗਰੁੱਪ ਵਿੱਚ ਸ਼ਾਮਲ ਹੋਵੋ
+        </a>
+    </div>
+</div>
+
+</body>
+</html>
