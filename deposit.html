@@ -75,7 +75,7 @@
     .totals-section td { padding: 4px 8px; text-align: left; }
     .totals-section td:last-child { text-align: right; font-family: monospace; font-weight: bold; }
 
-    /* BUTTONS */
+    /* BUTTONS & HIDING LOGIC */
     .btn-container { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
     button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
     .btn-add { background: #28a745; color: white; border: none; }
@@ -84,8 +84,9 @@
     .btn-print { background: #ffc107; color: black; border: none; }
     .btn-del { background: #dc3545; color: white; border: none; padding: 2px 5px; font-size: 10px; }
 
+    /* CRITICAL: CSS to hide elements during Print and PDF Generation */
     @media print {
-        .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container { display: none !important; }
+        .no-print { display: none !important; }
         body { background: white; padding: 0; }
         #appContainer { max-width: 100%; margin: 0; }
         input, textarea { border: none !important; }
@@ -101,10 +102,17 @@
             ▶ Watch Video Guide (How to Use)
         </a>
         <br>
+        <div class="usage-steps">
+            <b>Instructions:</b><br>
+            • Choose items from the <b>Material</b> column.<br>
+            • Fill <b>Dismantal/Return/Reuse</b> to auto-generate Labour rows.<br>
+            • <b>Sundry</b> rounds up the <b>Total 1</b> to the nearest whole number.<br>
+            • Use <b>Share PDF</b> for WhatsApp; <b>Print</b> for paper.
         </div>
     </div>
 
     <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
+    
     <div class="notice-top no-print">SR/SRW Estimation System - Contact: Nitish 9988344156</div>
 
     <div id="print-area" style="padding: 5px;">
@@ -139,8 +147,7 @@
                             <th style="width:40px">Qty</th>
                             <th style="width:50px">Rate</th>
                             <th style="width:80px">Total</th>
-                            <th style="width:30px" class="no-print">X</th>
-                        </tr>
+                            <th style="width:30px" class="no-print">X</th> </tr>
                     </thead>
                     <tbody id="labourBody"></tbody>
                     <tbody id="manualLabourBody"></tbody>
@@ -185,16 +192,89 @@
 
 <script>
 const materials={
-    1:{name:"6.3KVA T/Fs", rate:29553, labour:119.5},
-    2:{name:"10KVA T/Fs", rate:54993, labour:119.5},
-    3:{name:"16KVA T/Fs", rate:63864, labour:119.5},
-    4:{name:"25KVA T/Fs ", rate:77932, labour:119.5},
-    13:{name:"PCC Pole 9 Mtr.", rate:3692, labour:17.00},
-    14:{name:"PCC Pole 11 Mtr.", rate:8204, labour:21.25},
-    15:{name:"ACSR 30mm2 (Weasel)", rate:39, labour:0.06135},
-    19:{name:"Stay Set Complete", rate:445, labour:7.50},
-    38:{name:"Earth Rod", rate:602, labour:6.75},
-    41:{name:"GO Switch 75 Amps", rate:6490, labour:33.10}
+        1:{name:"6.3KVA T/Fs",rate:29553,labour:119.5},
+    2:{name:"10KVA T/Fs",rate:54993,labour:119.5},
+    3:{name:"16KVA T/Fs",rate:63864,labour:119.5},
+    4:{name:"25KVA T/Fs ",rate:77932,labour:119.5},
+    5:{name:"63KVA T/Fs",rate:145613,labour:119.5},
+    6:{name:"100KVA T/Fs",rate:185926,labour:137.5},
+    7:{name:"200KVA T/Fs",rate:360639,labour:137.5},
+    8:{name:"300KVA T/Fs",rate:278025,labour:137.5},
+    9:{name:"315KVA T/Fs",rate:631400,labour:137.5},
+    10:{name:"500KVA T/Fs",rate:1540229,labour:137.5},
+    11:{name:"10KVA 1Ph T/Fs",rate:44000,labour:119.5},
+    12:{name:"25KVA 1Ph T/Fs",rate:85713,labour:119.5},
+    13:{name:"PCC Pole 9 Mtr. ",rate:3692,labour:17},
+    14:{name:"PCC Pole 11 Mtr.",rate:8204,labour:21.25},
+    15:{name:"ACSR 30mm2  ( Weasel )",rate:39,labour:0.06135},
+    16:{name:"ACSR 50mm2 ( Rabbit )",rate:66.366,labour:0.06135},
+    17:{name:"ACSR 80 mm2  ( Raccoon )",rate:110,labour:0.106},
+    18:{name:"ACSR100 mm2 ( Dog )",rate:117,labour:0.11997},
+    19:{name:"Stay Set Complete",rate:445,labour:7.5},
+    20:{name:"GSS wire",rate:93.133,labour:0},
+    21:{name:"HT Guy Insulator (9000 Kg.)",rate:49,labour:0},
+    22:{name:"LT Guy Insulator (4500 Kg.)",rate:10,labour:0},
+    23:{name:"Shackle Insulator",rate:20,labour:0},
+    24:{name:"D Strap",rate:9,labour:0},
+    25:{name:"MS Channel 100 x50mm",rate:90.86,labour:0},
+    26:{name:"MS Channel 75x40mm",rate:92.158,labour:0},
+    27:{name:"MS Angle 65x65x6mm",rate:84.746,labour:0},
+    28:{name:"MS Angle 50x50x6mm",rate:84.746,labour:0},
+    29:{name:"MS Flat 40x6mm",rate:83.072,labour:0},
+    30:{name:"MS Flat 50x6mm",rate:83.072,labour:0},
+    31:{name:"GI Pins",rate:176,labour:0},
+    32:{name:"Pin Insulators",rate:113,labour:0},
+    33:{name:"Top Hamper",rate:195,labour:0},
+    34:{name:"V-Shape X-Arms",rate:802,labour:0},
+    35:{name:"11 KV Disc Insulators",rate:156,labour:0},
+    36:{name:"Dead end Clamps 30 to 80mm2",rate:312,labour:0},
+    37:{name:"GSL 4mm",rate:96.307,labour:0},
+    38:{name:"Earth Rod ",rate:602,labour:6.75},
+    39:{name:"HT Fuse Unit",rate:1749,labour:0},
+    40:{name:"LT Fuse Unit",rate:580,labour:0},
+    41:{name:"GO Switch 75 Amps",rate:6490,labour:33.1},
+    42:{name:"GO Switch 400 Amps",rate:12790,labour:33.1},
+    43:{name:"PG Clamps 30 to 80mm2",rate:113,labour:0},
+    44:{name:"RCC anchor Plates",rate:220,labour:0},
+    45:{name:"Single Core LT Cable 95mm2",rate:118.073,labour:0},
+    46:{name:"Single Core LT Cable 150 mm2",rate:164.065,labour:0},
+    47:{name:"2 Core PVC 6 mm2",rate:17.93,labour:0},
+    48:{name:"2 Core 10 mm2",rate:38,labour:0},
+    49:{name:"4 Core XLPE LT Cable 10 mm2",rate:85,labour:0},
+    50:{name:"4 Core XLPE LT Cable 16 mm2",rate:94,labour:0},
+    51:{name:"4 Core XLPE LT Cable 25mm2",rate:150,labour:0},
+    52:{name:"4 Core XLPE LT Cable 50mm2",rate:255,labour:0},
+    53:{name:"4 Core XLPE LT Cable 95 mm2",rate:452.76,labour:0},
+    54:{name:"4 Core XLPE LT Cable 150 mm2",rate:674.619,labour:0},
+    55:{name:"11 KV XLPE CABLE 3/C 35MM2",rate:470.8,labour:0.744},
+    56:{name:"11 KV XLPE CABLE 3/C 150MM2",rate:1013.606,labour:1.0503},
+    57:{name:"11 KV XLPE CABLE 3/C 300MM2",rate:1644.027,labour:1.0503},
+    58:{name:"11 KV Cable box O/D 35 mm2",rate:832,labour:11.75},
+    59:{name:"11 KV Cable box O/D 150 mm2",rate:814,labour:11.75},
+    60:{name:"11 KV Cable box O/D 300 mm2",rate:1095,labour:11.75},
+    61:{name:"11 KV Cable box I/D 35 mm2",rate:605,labour:11.75},
+    62:{name:"11 KV Cable box I/D 150 mm2",rate:756,labour:11.75},
+    63:{name:"11 KV Cable box I/D 300 mm2",rate:1000,labour:11.75},
+    64:{name:"MS NUT & BOLT 12X40MM",rate:83,labour:0},
+    65:{name:"MS NUT & BOLT 12X125MM",rate:76.573,labour:0},
+    66:{name:"MS NUT & BOLT 12X175MM",rate:102.502,labour:0},
+    67:{name:"MS NUT & BOLT 12X200MM",rate:102.502,labour:0},
+    68:{name:"MS NUT & BOLT 12X225MM",rate:102.502,labour:0},
+    69:{name:"MS NUT & BOLT 16X55MM",rate:101.204,labour:0},
+    70:{name:"MS NUT & BOLT 16X200MM",rate:76.573,labour:0},
+    71:{name:"CTPT 10/5",rate:75750,labour:0},
+    72:{name:"CTPT 20/5",rate:75750,labour:0},
+    73:{name:"CT PT 30/5",rate:75750,labour:0},
+    74:{name:"CT PT 50/5",rate:75000,labour:0},
+    75:{name:"CT PT 75/5",rate:75000,labour:0},
+    76:{name:"CT PT 100/5",rate:75000,labour:0},
+    77:{name:"CT PT 200/5",rate:75000,labour:0},
+    78:{name:"PCC POLL 8 MTR",rate:0,labour:0},
+    79:{name:"ACSR 13MM2",rate:0,labour:0},
+    80:{name:"ACSR 20MM2",rate:0,labour:0},
+    81:{name:"MS IRON SCRAP",rate:0,labour:0},
+    82:{name:"4C ALUM. CABLE SCRAP",rate:0,labour:0},
+
 };
 
 let matCount=0;
@@ -294,7 +374,6 @@ function finalCalc() {
         baseLab += (+r.querySelector(".m-qty").value || 0) * (+r.querySelector(".m-rate").value || 0);
     });
 
-    // LABOUR TABLE LOGIC
     const lab2_53x = baseLab * 53;
     const lab3_total = baseLab + lab2_53x;
     const fabQty = +document.getElementById('fabQty').value || 0;
@@ -311,7 +390,6 @@ function finalCalc() {
     document.getElementById('labour6').innerText = lab6_sup.toFixed(2);
     document.getElementById('labour7').innerText = lab7_final.toFixed(2);
 
-    // SUMMARY TABLE LOGIC
     const baseSundry = totalMat * 0.015;
     const rawTotal1 = totalMat + baseSundry;
     const t1_rounded = Math.ceil(rawTotal1);
@@ -320,7 +398,7 @@ function finalCalc() {
     const cst = t1_rounded * 0.05;
     const t2 = t1_rounded + cst;
     const addl = t2 * 0.04;
-    const t3 = t2 + addl + lab7_final; // Point 5 + Point 6 + Point 7 logic
+    const t3 = t2 + addl + lab7_final;
 
     const tp = t3 * 0.025;
     const t4 = t3 + tp;
@@ -347,7 +425,7 @@ function addManualLabour() {
     document.getElementById('manualLabourBody').insertAdjacentHTML('beforeend', row);
 }
 
-// PDF SHARE WITH 10MM MARGINS
+// PDF SHARE WITH 10MM MARGINS AND NO BUTTONS
 async function sharePDF() {
     const element = document.getElementById('print-area');
     const workName = document.getElementById('workName').value || "Estimate";
@@ -360,11 +438,12 @@ async function sharePDF() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
+    // This creates the PDF while automatically respecting the "no-print" CSS class
     const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
     const file = new File([pdfBlob], `${workName}.pdf`, { type: 'application/pdf' });
 
     if (navigator.share) {
-        try {	
+        try {
             await navigator.share({ files: [file], title: 'Estimate', text: `Estimate for: ${workName}` });
         } catch (e) { html2pdf().set(opt).from(element).save(); }
     } else {
