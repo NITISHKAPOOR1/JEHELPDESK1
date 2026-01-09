@@ -98,16 +98,16 @@
         .red-text { color: var(--accent-red); }
         .green-text { color: var(--primary); font-size: 1.4rem; }
 
-        .cap-warning {
+        .cap-msg {
             display: none;
-            text-align: center;
             background: #fff3e0;
             color: #e65100;
-            padding: 10px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 8px;
+            text-align: center;
+            padding: 8px;
             margin-top: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 8px;
         }
 
         .footer {
@@ -150,12 +150,10 @@
         </div>
     </div>
 
-    <div id="capWarning" class="cap-warning">
-        NOTE: Asset has reached maximum 90% depreciation.
-    </div>
+    <div id="capIndicator" class="cap-msg">ASSET REACHED 10% RESIDUAL LIMIT</div>
 
     <div class="footer">
-        Based on 5.28% Fixed Rate | Applied to <span id="daysCount">0</span> days.
+        Formula: (Value × 5.28% × days) / 365 | Days: <span id="daysCount">0</span>
     </div>
 </div>
 
@@ -230,28 +228,28 @@
         const basePrice = DB[year][kva];
 
         const dayDiff = Math.floor((today - purchase) / (1000 * 60 * 60 * 24));
-        const age = dayDiff / 365.25;
 
-        // Apply reducing balance formula
-        let currentVal = basePrice * Math.pow((1 - rate), age);
+        // 1. Calculate raw depreciation using your formula
+        let totalDepreciation = (basePrice * rate * dayDiff) / 365;
         
-        // APPLY THE 90% CAP (Minimum 10% Residual)
-        const scrapValue = basePrice * 0.10;
+        // 2. APPLY THE 90% CAP (MAX DEPRECIATION)
+        const maxDepreciation = basePrice * 0.90;
         let isCapped = false;
 
-        if (currentVal < scrapValue) {
-            currentVal = scrapValue;
+        if (totalDepreciation > maxDepreciation) {
+            totalDepreciation = maxDepreciation;
             isCapped = true;
         }
-
-        const totalDepreciation = basePrice - currentVal;
+        
+        // 3. Present Value = Original - Depreciation (Min 10%)
+        let currentVal = basePrice - totalDepreciation;
 
         // UI Updates
         document.getElementById('origDisplay').innerText = "₹" + basePrice.toLocaleString();
-        document.getElementById('deprDisplay').innerText = "-₹" + Math.round(totalDepreciation).toLocaleString();
+        document.getElementById('deprDisplay').innerText = "₹" + Math.round(totalDepreciation).toLocaleString();
         document.getElementById('presentDisplay').innerText = "₹" + Math.round(currentVal).toLocaleString();
         document.getElementById('daysCount').innerText = dayDiff > 0 ? dayDiff.toLocaleString() : 0;
-        document.getElementById('capWarning').style.display = isCapped ? "block" : "none";
+        document.getElementById('capIndicator').style.display = isCapped ? "block" : "none";
     }
 
     function clearOutputs() {
@@ -259,7 +257,7 @@
         document.getElementById('deprDisplay').innerText = "₹0";
         document.getElementById('presentDisplay').innerText = "₹0";
         document.getElementById('daysCount').innerText = "0";
-        document.getElementById('capWarning').style.display = "none";
+        document.getElementById('capIndicator').style.display = "none";
     }
 </script>
 
