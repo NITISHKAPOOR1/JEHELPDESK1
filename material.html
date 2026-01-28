@@ -21,29 +21,19 @@ body{font-family:Arial,sans-serif;background:#f4f6f8;padding:10px}
 .yt-button {
     display: inline-flex;
     align-items: center;
-    background: #cc0000; /* YouTube Dark Red */
+    background: #cc0000; 
     color: #ffffff !important;
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
     padding: 10px 20px;
-    border-radius: 50px; /* Pill shape */
+    border-radius: 50px;
     transition: background 0.3s;
     margin-bottom: 8px;
 }
-.yt-button:hover {
-    background: #ff0000;
-}
-.yt-button span {
-    margin-right: 8px;
-    font-size: 18px;
-}
-.video-guide-container p {
-    font-size: 12px;
-    color: #555;
-    margin: 0;
-    font-weight: bold;
-}
+.yt-button:hover { background: #ff0000; }
+.yt-button span { margin-right: 8px; font-size: 18px; }
+.video-guide-container p { font-size: 12px; color: #555; margin: 0; font-weight: bold; }
 
 #errorAlert {
     display: none;
@@ -86,6 +76,7 @@ th{background:#e0e0e0}
 input{width:100%; padding:2px; box-sizing:border-box; border:none; text-align:center}
 input:focus{outline:1px solid #007bff}
 
+.rate-input, .mat-input { background-color: #fff; }
 .lab-table input { background-color: #fdfdfd; border-bottom: 1px dashed #ccc; }
 
 .total-row td{font-weight:bold; background:#f0f0f0}
@@ -93,12 +84,15 @@ input:focus{outline:1px solid #007bff}
 
 .totals-section td { padding: 9px 8px; }
 
-.btn-container { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+/* Modified Button Containers */
+.table-action-area { margin: 10px 0; }
+.btn-container { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
 button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
 .btn-add { background: #28a745; color: white; border: none; }
 .btn-lab { background: #17a2b8; color: white; border: none; font-size: 10px; margin-top: 5px;}
-.btn-share { background: #007bff; color: white; border: none; }
-.btn-print { background: #ffc107; color: black; border: none; }
+.btn-share { background: #007bff; color: white; border: none; padding: 12px 25px; }
+.btn-print { background: #ffc107; color: black; border: none; padding: 12px 25px; }
 .btn-del { background: #dc3545; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px;}
 
 .fab-inline-input { width: 45px !important; border-bottom: 1px solid #999 !important; display: inline-block !important; background: #fff8e1 !important; text-align: center; }
@@ -106,7 +100,7 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
 .pdf-hidden { display: none !important; }
 
 @media print{
-    .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container {display:none !important}
+    .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container, .table-action-area {display:none !important}
     body { background: white; padding: 0; }
     #appContainer { max-width: 100%; margin: 0; }
     input, textarea { border: none !important; appearance: none; pointer-events: none; background: transparent !important;}
@@ -122,7 +116,7 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
         <a href="YOUR_YOUTUBE_LINK_HERE" target="_blank" class="yt-button">
             <span>▶</span> WATCH: HOW TO USE THIS SHEET
         </a>
-        
+        <p>Follow the 4-step workflow to generate your estimate accurately.</p>
     </div>
 
     <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
@@ -152,6 +146,10 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
+
+        <div class="table-action-area no-print">
+            <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
+        </div>
 
         <div class="calc-container">
             <div class="labour-selection-section">
@@ -241,7 +239,6 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
     </div>
 
     <div class="btn-container no-print" id="ui-buttons">
-        <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
         <button class="btn-share" onclick="sharePDF()">📲 Share PDF</button>
         <button class="btn-print" onclick="window.print()">🖨️ Print Now</button>
     </div>
@@ -250,9 +247,8 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
-// ... [JavaScript functions remain exactly as previously provided to maintain functionality] ...
 const materials={
-        1:{name:"6.3KVA T/Fs",rate:29553,labour:119.5},
+    1:{name:"6.3KVA T/Fs",rate:29553,labour:119.5},
     2:{name:"10KVA T/Fs",rate:54993,labour:119.5},
     3:{name:"16KVA T/Fs",rate:63864,labour:119.5},
     4:{name:"25KVA T/Fs ",rate:77932,labour:119.5},
@@ -334,7 +330,8 @@ const materials={
     80:{name:"ACSR 20MM2",rate:0,labour:0},
     81:{name:"MS IRON SCRAP",rate:0,labour:0},
     82:{name:"4C ALUM. CABLE SCRAP",rate:0,labour:0},
-
+83:{name:"EGG INSU 9000KN",rate:49,labour:0},
+84:{name:"EGG INSU 4500KN",rate:10,labour:0},
 };
 
 let matCount=0;
@@ -345,8 +342,9 @@ function addRow(){
     matCount++;
     const newRow = `<tr>
         <td>${matCount}</td>
-        <td><input class="mat-input" list="ml_${matCount}" data-row-id="${matCount}" onfocus="updateDropdowns()" oninput="handleInput(this)"><datalist id="ml_${matCount}"></datalist></td>
-        <td><input class="rate" readonly></td>
+        <td><input class="mat-input" list="ml_${matCount}" data-row-id="${matCount}" onfocus="updateDropdowns()" oninput="handleInput(this)">
+            <datalist id="ml_${matCount}"></datalist></td>
+        <td><input class="rate-input" oninput="calc()"></td>
         <td><input class="qty" oninput="calc()"></td>
         <td><input class="dismental" oninput="calc()"></td>
         <td><input class="return" oninput="validateLogic(this)"></td>
@@ -360,8 +358,10 @@ function addRow(){
 function handleInput(input) {
     const mat = Object.values(materials).find(m => m.name === input.value);
     const r = input.closest("tr");
-    if(mat) { r.querySelector(".rate").value = mat.rate; r.querySelector(".qty").value = 1; } 
-    else { r.querySelector(".rate").value = ""; r.querySelector(".qty").value = ""; }
+    if(mat) { 
+        r.querySelector(".rate-input").value = mat.rate; 
+        r.querySelector(".qty").value = 1; 
+    }
     const rowId = input.getAttribute('data-row-id');
     deletedAutoRows.forEach(key => { if(key.startsWith(rowId + "-")) deletedAutoRows.delete(key); });
     Object.keys(manualOverriddenQtys).forEach(key => { if(key.startsWith(rowId + "-")) delete manualOverriddenQtys[key]; });
@@ -397,13 +397,16 @@ function calc(){
         const nameInput = r.querySelector(".mat-input");
         const rowId = nameInput.getAttribute('data-row-id');
         if(!nameInput || !nameInput.value) return;
-        const m = Object.values(materials).find(x => x.name === nameInput.value);
-        if(!m) return;
+        
+        const currentRate = +r.querySelector(".rate-input").value || 0;
         const qty = +r.querySelector(".qty").value || 0;
         const dis = +r.querySelector(".dismental").value || 0;
         const reuse = +r.querySelector(".reuse").value || 0;
-        r.querySelector(".amt").innerText = (m.rate * qty).toFixed(2);
-        if(m.labour > 0) {
+        
+        r.querySelector(".amt").innerText = (currentRate * qty).toFixed(2);
+        
+        const m = Object.values(materials).find(x => x.name === nameInput.value);
+        if(m && m.labour > 0) {
             const types = [{id:'E', label:'E/O', baseVal:qty, rate:m.labour}, {id:'D', label:'D/O', baseVal:dis, rate:m.labour*0.5}, {id:'R', label:'R/O', baseVal:reuse, rate:m.labour}];
             types.forEach(t => {
                 const key = `${rowId}-${t.id}`;
@@ -491,11 +494,13 @@ async function sharePDF() {
     const buttons = document.getElementById('ui-buttons');
     const deleteBtns = document.querySelectorAll('.btn-del');
     const labAddBtn = document.querySelector('.btn-lab');
+    const tableAddBtn = document.querySelector('.table-action-area');
     const inputs = document.querySelectorAll('.no-print');
 
     buttons.classList.add('pdf-hidden');
     deleteBtns.forEach(b => b.classList.add('pdf-hidden'));
     if(labAddBtn) labAddBtn.classList.add('pdf-hidden');
+    if(tableAddBtn) tableAddBtn.classList.add('pdf-hidden');
     inputs.forEach(i => i.classList.add('pdf-hidden'));
 
     const element = document.getElementById('print-area');
@@ -529,6 +534,7 @@ async function sharePDF() {
         buttons.classList.remove('pdf-hidden');
         deleteBtns.forEach(b => b.classList.remove('pdf-hidden'));
         if(labAddBtn) labAddBtn.classList.remove('pdf-hidden');
+        if(tableAddBtn) tableAddBtn.classList.remove('pdf-hidden');
         inputs.forEach(i => i.classList.remove('pdf-hidden'));
     }
 }
