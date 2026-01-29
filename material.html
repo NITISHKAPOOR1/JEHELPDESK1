@@ -8,6 +8,15 @@
 body{font-family:Arial,sans-serif;background:#f4f6f8;padding:10px}
 #appContainer{display:block; max-width: 1000px; margin: auto;}
 
+/* Navigation Tabs */
+.nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+.nav-btn { padding: 10px 20px; cursor: pointer; border: none; background: #e0e0e0; border-radius: 5px; font-weight: bold; }
+.nav-btn.active { background: #007bff; color: white; }
+
+/* Page Views */
+.page-view { display: none; }
+.page-view.active { display: block; }
+
 /* YouTube Red Style Guide Tab */
 .video-guide-container {
     background: #fff;
@@ -92,15 +101,22 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
 .btn-lab { background: #17a2b8; color: white; border: none; font-size: 10px; margin-top: 5px;}
 .btn-share { background: #007bff; color: white; border: none; padding: 12px 25px; }
 .btn-print { background: #ffc107; color: black; border: none; padding: 12px 25px; }
+.btn-save { background: #6f42c1; color: white; border: none; padding: 12px 25px; }
 .btn-del { background: #dc3545; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px;}
 
-/* Custom styling for manual Fabrication inputs */
+/* Saved Page Styles */
+.saved-estimates-section { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
+.estimate-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; background: #fafafa; margin-bottom: 10px; border-radius: 5px; }
+.estimate-item:hover { background: #f1f1f1; }
+.estimate-info b { font-size: 14px; color: #333; }
+.estimate-info p { margin: 5px 0 0; font-size: 12px; color: #777; }
+
 .fab-inline-input { width: 45px !important; border-bottom: 1px solid #999 !important; display: inline-block !important; background: #fff8e1 !important; text-align: center; }
 
 .pdf-hidden { display: none !important; }
 
 @media print{
-    .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container, .table-action-area {display:none !important}
+    .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container, .table-action-area, .nav-tabs {display:none !important}
     body { background: white; padding: 0; }
     #appContainer { max-width: 100%; margin: 0; }
     input, textarea { border: none !important; appearance: none; pointer-events: none; background: transparent !important;}
@@ -112,138 +128,153 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
 <body>
 
 <div id="appContainer">
-    <div class="video-guide-container no-print">
-        <a href="https://youtu.be/Y62x8NpRh2E" target="_blank" class="yt-button">
-            <span>▶</span> WATCH: HOW TO USE THIS SHEET
-        </a>
-        <p>Follow the 4-step workflow to generate your estimate accurately.</p>
+    <div class="nav-tabs no-print">
+        <button class="nav-btn active" onclick="switchPage('calcPage', this)">📊 New Estimate</button>
+        <button class="nav-btn" onclick="switchPage('savedPage', this); showSavedList();">📁 Saved Records</button>
     </div>
 
-    <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
-    
-    <div class="notice-top no-print">
-        SR/SRW Estimation System - Contact: Nitish 9988344156
-    </div>
-
-    <div id="print-area">
-        <div class="title-box">
-            <b>Name of Work</b> 
-            <textarea id="workName" rows="3" placeholder=""></textarea>
+    <div id="calcPage" class="page-view active">
+        <div class="video-guide-container no-print">
+            <a href="https://youtu.be/Y62x8NpRh2E" target="_blank" class="yt-button">
+                <span>▶</span> WATCH: HOW TO USE THIS SHEET
+            </a>
+            <p>Follow the 4-step workflow to generate your estimate accurately.</p>
         </div>
 
-        <table class="main-table">
-            <thead>
-                <tr>
-                    <th style="width:30px">S.N</th>
-                    <th>Material</th>
-                    <th style="width:60px">Rate</th>
-                    <th style="width:50px">Qty</th>
-                    <th style="width:60px">Dismental</th>
-                    <th style="width:55px">Return</th>
-                    <th style="width:55px">Reuse</th>
-                    <th style="width:80px">Amount</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-
-        <div class="table-action-area no-print">
-            <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
+        <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
+        
+        <div class="notice-top no-print">
+            SR/SRW Estimation System - Contact: Nitish 9988344156
         </div>
 
-        <div class="calc-container">
-            <div class="labour-selection-section">
-                <b style="font-size: 13px; display: block; margin-bottom: 5px;">Labour Calculation (Editable)</b>
-                <table class="lab-table">
-                    <thead>
-                        <tr>
-                            <th>Labour Description</th>
-                            <th style="width:40px">Qty</th>
-                            <th style="width:50px">Rate</th>
-                            <th style="width:80px">Total</th>
-                            <th style="width:30px" class="no-print">X</th>
-                        </tr>
-                    </thead>
-                    <tbody id="labourBody"></tbody>
-                    <tbody id="manualLabourBody"></tbody>
-                    <tfoot>
-                        <tr class="no-print">
-                            <td colspan="5" style="background: #f9f9f9; text-align: left; padding: 5px;">
-                                <button class="btn-lab" onclick="addManualLabour()">➕ Add Manual Labour Row</button>
-                            </td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">LABOUR TOTAL</td>
-                            <td>₹ <span id="labourTotal">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">LABOUR (5300%)</td>
-                            <td>₹ <span id="labour53">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">LABOUR (×54)</td>
-                            <td>₹ <span id="labourSpecial">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">
-                                Fabrication Rate: <input id="fabRate" class="fab-inline-input" value="28" oninput="finalCalc()"> 
-                                Qty: <input id="fabQty" class="fab-inline-input" placeholder="0" oninput="finalCalc()">
-                            </td>
-                            <td>₹ <span id="fabTotal">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">GST on Labour & Fab (18%)</td>
-                            <td>₹ <span id="labourGstOnly">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">Total Labour</td>
-                            <td>₹ <span id="totalLabourLeft">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                    </tfoot>
-                </table>
+        <div id="print-area">
+            <div class="title-box">
+                <b>Name of Work</b> 
+                <textarea id="workName" rows="3" placeholder=""></textarea>
             </div>
 
-            <div class="totals-section">
-                <b style="font-size: 13px; display: block; margin-bottom: 5px;">Summary</b>
-                <table>
-                    <tr class="total-row">
-                        <td align="right" style="width: 55%">MATERIAL TOTAL</td>
-                        <td>₹ <span id="materialTotal">0.00</span></td>
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th style="width:30px">S.N</th>
+                        <th>Material</th>
+                        <th style="width:60px">Rate</th>
+                        <th style="width:50px">Qty</th>
+                        <th style="width:60px">Dismental</th>
+                        <th style="width:55px">Return</th>
+                        <th style="width:55px">Reuse</th>
+                        <th style="width:80px">Amount</th>
                     </tr>
-                    <tr class="total-row">
-                        <td align="right">SUNDRY (Adjusted)</td>
-                        <td>₹ <span id="sundry">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">TOTAL (M+S)</td>
-                        <td>₹ <span id="subTotal">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">C/S/T @ 5%</td>
-                        <td>₹ <span id="cst">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right" style="color:#d9534f">TOTAL LABOUR</td>
-                        <td>₹ <span id="totalLabourSummary">0.00</span></td>
-                    </tr>
-                    <tr class="final-row">
-                        <td align="right">GRAND TOTAL</td>
-                        <td>₹ <span id="grandTotal">0.00</span></td>
-                    </tr>
-                </table>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+
+            <div class="table-action-area no-print">
+                <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
             </div>
+
+            <div class="calc-container">
+                <div class="labour-selection-section">
+                    <b style="font-size: 13px; display: block; margin-bottom: 5px;">Labour Calculation (Editable)</b>
+                    <table class="lab-table">
+                        <thead>
+                            <tr>
+                                <th>Labour Description</th>
+                                <th style="width:40px">Qty</th>
+                                <th style="width:50px">Rate</th>
+                                <th style="width:80px">Total</th>
+                                <th style="width:30px" class="no-print">X</th>
+                            </tr>
+                        </thead>
+                        <tbody id="labourBody"></tbody>
+                        <tbody id="manualLabourBody"></tbody>
+                        <tfoot>
+                            <tr class="no-print">
+                                <td colspan="5" style="background: #f9f9f9; text-align: left; padding: 5px;">
+                                    <button class="btn-lab" onclick="addManualLabour()">➕ Add Manual Labour Row</button>
+                                </td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">LABOUR TOTAL</td>
+                                <td>₹ <span id="labourTotal">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">LABOUR (5300%)</td>
+                                <td>₹ <span id="labour53">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">LABOUR (×54)</td>
+                                <td>₹ <span id="labourSpecial">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">
+                                    Fabrication Rate: <input id="fabRate" class="fab-inline-input" value="28" oninput="finalCalc()"> 
+                                    Qty: <input id="fabQty" class="fab-inline-input" placeholder="0" oninput="finalCalc()">
+                                </td>
+                                <td>₹ <span id="fabTotal">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">GST on Labour & Fab (18%)</td>
+                                <td>₹ <span id="labourGstOnly">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">Total Labour</td>
+                                <td>₹ <span id="totalLabourLeft">0.00</span></td>
+                                <td class="no-print"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="totals-section">
+                    <b style="font-size: 13px; display: block; margin-bottom: 5px;">Summary</b>
+                    <table>
+                        <tr class="total-row">
+                            <td align="right" style="width: 55%">MATERIAL TOTAL</td>
+                            <td>₹ <span id="materialTotal">0.00</span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td align="right">SUNDRY (Adjusted)</td>
+                            <td>₹ <span id="sundry">0.00</span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td align="right">TOTAL (M+S)</td>
+                            <td>₹ <span id="subTotal">0.00</span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td align="right">C/S/T @ 5%</td>
+                            <td>₹ <span id="cst">0.00</span></td>
+                        </tr>
+                        <tr class="total-row">
+                            <td align="right" style="color:#d9534f">TOTAL LABOUR</td>
+                            <td>₹ <span id="totalLabourSummary">0.00</span></td>
+                        </tr>
+                        <tr class="final-row">
+                            <td align="right">GRAND TOTAL</td>
+                            <td>₹ <span id="grandTotal">0.00</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container no-print" id="ui-buttons">
+            <button class="btn-save" onclick="saveEstimate()">💾 Save Estimate</button>
+            <button class="btn-share" onclick="sharePDF()">📲 Share PDF</button>
+            <button class="btn-print" onclick="window.print()">🖨️ Print Now</button>
         </div>
     </div>
 
-    <div class="btn-container no-print" id="ui-buttons">
-        <button class="btn-share" onclick="sharePDF()">📲 Share PDF</button>
-        <button class="btn-print" onclick="window.print()">🖨️ Print Now</button>
+    <div id="savedPage" class="page-view">
+        <div class="saved-estimates-section">
+            <h2 style="border-bottom: 2px solid #007bff; padding-bottom: 10px;">Saved Records</h2>
+            <div id="savedList">No saved estimates found.</div>
+        </div>
     </div>
 </div>
 
@@ -335,12 +366,19 @@ const materials={
     82:{name:"4C ALUM. CABLE SCRAP",rate:0,labour:0},
 83:{name:"EGG INSU 9000KN",rate:49,labour:0},
 84:{name:"EGG INSU 4500KN",rate:10,labour:0},
-
 };
 
 let matCount=0;
 let deletedAutoRows = new Set();
 let manualOverriddenQtys = {}; 
+
+// Toggle View Function
+function switchPage(pageId, btn) {
+    document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    btn.classList.add('active');
+}
 
 function addRow(){
     matCount++;
@@ -495,6 +533,115 @@ function addManualLabour() {
     mBody.insertAdjacentHTML('beforeend', row);
 }
 
+// SAVE SYSTEM FUNCTIONS
+function saveEstimate() {
+    const nameInput = document.getElementById('workName').value.trim();
+    const name = nameInput || "Untitled Estimate (" + new Date().toLocaleString() + ")";
+    const data = {
+        workName: document.getElementById('workName').value,
+        fabRate: document.getElementById('fabRate').value,
+        fabQty: document.getElementById('fabQty').value,
+        date: new Date().toLocaleString(),
+        materials: [],
+        manualLabour: []
+    };
+
+    document.querySelectorAll("#tableBody tr").forEach(r => {
+        const matName = r.querySelector(".mat-input").value;
+        if(matName) {
+            data.materials.push({
+                name: matName,
+                rate: r.querySelector(".rate-input").value,
+                qty: r.querySelector(".qty").value,
+                dis: r.querySelector(".dismental").value,
+                ret: r.querySelector(".return").value,
+                reuse: r.querySelector(".reuse").value
+            });
+        }
+    });
+
+    document.querySelectorAll("#manualLabourBody tr").forEach(r => {
+        data.manualLabour.push({
+            desc: r.querySelector("input").value,
+            qty: r.querySelector(".m-qty").value,
+            rate: r.querySelector(".m-rate").value
+        });
+    });
+
+    let saved = JSON.parse(localStorage.getItem('estimates') || '{}');
+    saved[name] = data;
+    localStorage.setItem('estimates', JSON.stringify(saved));
+    alert("Estimate Saved Successfully!");
+}
+
+function showSavedList() {
+    const saved = JSON.parse(localStorage.getItem('estimates') || '{}');
+    const container = document.getElementById('savedList');
+    const keys = Object.keys(saved);
+    if(keys.length === 0) { container.innerHTML = "<p style='text-align:center; color:#999;'>No saved estimates found.</p>"; return; }
+
+    container.innerHTML = keys.map(k => `
+        <div class="estimate-item">
+            <div class="estimate-info">
+                <b>${k}</b>
+                <p>Saved on: ${saved[k].date || 'N/A'}</p>
+            </div>
+            <div>
+                <button style="background:#007bff; color:white; border:none;" onclick="loadEstimate('${k}')">📂 Open</button>
+                <button class="btn-del" onclick="deleteSaved('${k}')">🗑️ Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadEstimate(key) {
+    const saved = JSON.parse(localStorage.getItem('estimates') || '{}');
+    const data = saved[key];
+    if(!data) return;
+
+    // Reset Calculator state
+    document.getElementById('tableBody').innerHTML = "";
+    document.getElementById('manualLabourBody').innerHTML = "";
+    matCount = 0;
+    deletedAutoRows.clear();
+    manualOverriddenQtys = {};
+
+    document.getElementById('workName').value = data.workName || "";
+    document.getElementById('fabRate').value = data.fabRate || "28";
+    document.getElementById('fabQty').value = data.fabQty || "";
+
+    data.materials.forEach(m => {
+        addRow();
+        const lastRow = document.querySelector("#tableBody tr:last-child");
+        lastRow.querySelector(".mat-input").value = m.name;
+        lastRow.querySelector(".rate-input").value = m.rate;
+        lastRow.querySelector(".qty").value = m.qty;
+        lastRow.querySelector(".dismental").value = m.dis;
+        lastRow.querySelector(".return").value = m.ret;
+        lastRow.querySelector(".reuse").value = m.reuse;
+    });
+
+    data.manualLabour.forEach(ml => {
+        addManualLabour();
+        const lastRow = document.querySelector("#manualLabourBody tr:last-child");
+        lastRow.querySelector("input").value = ml.desc;
+        lastRow.querySelector(".m-qty").value = ml.qty;
+        lastRow.querySelector(".m-rate").value = ml.rate;
+    });
+
+    calc();
+    switchPage('calcPage', document.querySelector('.nav-btn')); // Switch back to calculator
+    alert("Loaded: " + key);
+}
+
+function deleteSaved(key) {
+    if(!confirm("Are you sure you want to delete this estimate?")) return;
+    let saved = JSON.parse(localStorage.getItem('estimates') || '{}');
+    delete saved[key];
+    localStorage.setItem('estimates', JSON.stringify(saved));
+    showSavedList();
+}
+
 async function sharePDF() {
     const buttons = document.getElementById('ui-buttons');
     const deleteBtns = document.querySelectorAll('.btn-del');
@@ -537,15 +684,15 @@ async function sharePDF() {
         console.error('Action failed:', error);
     } finally {
         buttons.classList.remove('pdf-hidden');
-        deleteBtns.forEach(b => b.classList.remove('pdf-hidden'));
+        deleteBtns.forEach(b => b.classList.remove('pdf-hidden'));		
         if(labAddBtn) labAddBtn.classList.remove('pdf-hidden');
         if(tableAddBtn) tableAddBtn.classList.remove('pdf-hidden');
         inputs.forEach(i => i.classList.remove('pdf-hidden'));
     }
 }
 
+// Initial Setup
 for(let i=0;i<12;i++) addRow();
 </script>
 </body>
 </html>
-
