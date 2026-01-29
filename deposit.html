@@ -8,103 +8,63 @@
 body{font-family:Arial,sans-serif;background:#f4f6f8;padding:10px}
 #appContainer{display:block; max-width: 1000px; margin: auto;}
 
-/* YouTube Red Style Guide Tab */
-.video-guide-container {
-    background: #fff;
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 15px;
-    text-align: center;
-    border: 1px solid #ddd;
+/* Tab Styling */
+.tab-container { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #ddd; }
+.tab-btn { 
+    padding: 12px 25px; cursor: pointer; background: #e9ecef; border: none; 
+    border-radius: 8px 8px 0 0; font-weight: bold; color: #555; transition: 0.3s;
 }
-.yt-button {
-    display: inline-flex;
-    align-items: center;
-    background: #cc0000; 
-    color: #ffffff !important;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 14px;
-    padding: 10px 20px;
-    border-radius: 50px;
-    transition: background 0.3s;
-    margin-bottom: 8px;
-}
+.tab-btn.active { background: #007bff; color: white; }
+.tab-content { display: none; background: transparent; }
+.tab-content.active { display: block; }
+
+/* Existing Styles */
+.video-guide-container { background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; text-align: center; border: 1px solid #ddd; }
+.yt-button { display: inline-flex; align-items: center; background: #cc0000; color: #ffffff !important; text-decoration: none; font-weight: bold; font-size: 14px; padding: 10px 20px; border-radius: 50px; transition: background 0.3s; margin-bottom: 8px; }
 .yt-button:hover { background: #ff0000; }
 .yt-button span { margin-right: 8px; font-size: 18px; }
-.video-guide-container p { font-size: 12px; color: #555; margin: 0; font-weight: bold; }
 
-#errorAlert {
-    display: none;
-    background: #f8d7da;
-    color: #721c24;
-    padding: 10px;
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.notice-top{
-    color:red; font-weight:900; font-size: 1.1rem; margin-bottom:15px;
-    text-align: center; background: #fff; padding: 10px; border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
+#errorAlert { display: none; background: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; }
+.notice-top{ color:red; font-weight:900; font-size: 1.1rem; margin-bottom:15px; text-align: center; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
 .title-box textarea{width:100%; border:2px solid #000; padding:6px; margin-top:5px; display:block; resize: none;}
 
 table{width:100%; border-collapse:collapse; background:#fff; table-layout:fixed; margin-bottom:10px}
 th,td{border:1px solid #000; padding:4px; text-align:center; font-size: 11px;}
 th{background:#e0e0e0}
 
-.calc-container { 
-    display: flex; 
-    justify-content: space-between; 
-    gap: 15px; 
-    margin-top: 20px; 
-    align-items: flex-start; 
-}
-
+.calc-container { display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; align-items: flex-start; }
 .labour-selection-section { width: 55%; }
 .totals-section { width: 43%; }
 
 .main-table th:nth-child(2){width:180px} 
-.lab-table th:nth-child(1){width:200px} 
-
 input{width:100%; padding:2px; box-sizing:border-box; border:none; text-align:center}
 input:focus{outline:1px solid #007bff}
-
-.rate-input, .mat-input { background-color: #fff; }
-.lab-table input { background-color: #fdfdfd; border-bottom: 1px dashed #ccc; }
 
 .total-row td{font-weight:bold; background:#f0f0f0}
 .final-row td{font-weight:bold; background:#dff0d8; font-size:13px}
 
-.totals-section td { padding: 6px 8px; }
-
-/* Modified Button Containers */
-.table-action-area { margin: 10px 0; }
 .btn-container { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-
 button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
 .btn-add { background: #28a745; color: white; border: none; }
 .btn-lab { background: #17a2b8; color: white; border: none; font-size: 10px; margin-top: 5px;}
 .btn-share { background: #007bff; color: white; border: none; padding: 12px 25px; }
 .btn-print { background: #ffc107; color: black; border: none; padding: 12px 25px; }
+.btn-save { background: #6c757d; color: white; border: none; padding: 12px 25px; }
 .btn-del { background: #dc3545; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px;}
-
 .fab-inline-input { width: 45px !important; border-bottom: 1px solid #999 !important; display: inline-block !important; background: #fff8e1 !important; text-align: center; }
+
+/* History Tab Table */
+.history-table { width: 100%; border-radius: 8px; overflow: hidden; }
+.history-table th { background: #343a40; color: white; padding: 10px; }
+.history-table td { padding: 10px; background: #fff; }
+.btn-load { background: #17a2b8; color: white; border: none; margin-right: 5px; }
+.btn-delete-saved { background: #dc3545; color: white; border: none; }
 
 .pdf-hidden { display: none !important; }
 
 @media print{
-    .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container, .table-action-area {display:none !important}
+    .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container, .table-action-area, .tab-container {display:none !important}
     body { background: white; padding: 0; }
-    #appContainer { max-width: 100%; margin: 0; }
-    input, textarea { border: none !important; appearance: none; pointer-events: none; background: transparent !important;}
-    .fab-inline-input { border: none !important; background: transparent !important; }
 }
 </style>
 </head>
@@ -112,167 +72,125 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
 <body>
 
 <div id="appContainer">
-    <div class="video-guide-container no-print">
-        <a href="YOUR_YOUTUBE_LINK_HERE" target="_blank" class="yt-button">
-            <span>▶</span> WATCH: HOW TO USE THIS SHEET
-        </a>
-        <p>Follow the 4-step workflow to generate your estimate accurately.</p>
+    <div class="tab-container no-print">
+        <button class="tab-btn active" onclick="openTab('estimationTab', this)">📝 New Estimate</button>
+        <button class="tab-btn" onclick="openTab('historyTab', this)">💾 Saved Estimate</button>
     </div>
 
-    <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
-    
-    <div class="notice-top no-print">
-        SR/SRW Estimation System - Contact: Nitish 9988344156
-    </div>
-
-    <div id="print-area">
-        <div class="title-box">
-            <b>Name of Work</b> 
-            <textarea id="workName" rows="3" placeholder=""></textarea>
+    <div id="estimationTab" class="tab-content active">
+        <div class="video-guide-container no-print">
+            <a href="https://youtu.be/Y62x8NpRh2E" target="_blank" class="yt-button">
+                <span>▶</span> WATCH: HOW TO USE THIS SHEET
+            </a>
+            <p>Follow the workflow to generate your estimate accurately.</p>
         </div>
 
-        <table class="main-table">
-            <thead>
-                <tr>
-                    <th style="width:30px">S.N</th>
-                    <th>Material</th>
-                    <th style="width:60px">Rate</th>
-                    <th style="width:50px">Qty</th>
-                    <th style="width:60px">Dismental</th>
-                    <th style="width:55px">Return</th>
-                    <th style="width:55px">Reuse</th>
-                    <th style="width:80px">Amount</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+        <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
+        <div class="notice-top no-print">SR/SRW Estimation System - Contact: Nitish 9988344156</div>
 
-        <div class="table-action-area no-print">
-            <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
-        </div>
-
-        <div class="calc-container">
-            <div class="labour-selection-section">
-                <b style="font-size: 13px; display: block; margin-bottom: 5px;">Labour Calculation (Editable)</b>
-                <table class="lab-table">
-                    <thead>
-                        <tr>
-                            <th>Labour Description</th>
-                            <th style="width:40px">Qty</th>
-                            <th style="width:50px">Rate</th>
-                            <th style="width:80px">Total</th>
-                            <th style="width:30px" class="no-print">X</th>
-                        </tr>
-                    </thead>
-                    <tbody id="labourBody"></tbody>
-                    <tbody id="manualLabourBody"></tbody>
-                    <tfoot>
-                        <tr class="no-print">
-                            <td colspan="5" style="background: #f9f9f9; text-align: left; padding: 5px;">
-                                <button class="btn-lab" onclick="addManualLabour()">➕ Add Manual Labour Row</button>
-                            </td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">1. LABOUR TOTAL</td>
-                            <td>₹ <span id="labourTotal">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">2. LABOUR (5300%)</td>
-                            <td>₹ <span id="labour53">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">3. Total Labour (1+2)</td>
-                            <td>₹ <span id="point3Total">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">
-                                4. Fabrication Qty: <input id="fabQty" class="fab-inline-input" placeholder="0" oninput="finalCalc()"> 
-                                Rate: <input id="fabRate" class="fab-inline-input" value="28" oninput="finalCalc()">
-                            </td>
-                            <td>₹ <span id="fabTotal">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">5. Total (3+4)</td>
-                            <td>₹ <span id="point5Total">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">6. Supervision Charges 15%</td>
-                            <td>₹ <span id="supervisionCharges">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                        <tr class="total-row">
-                            <td colspan="3" align="right">7. Total Labour (5+6)</td>
-                            <td>₹ <span id="totalLabourLeft">0.00</span></td>
-                            <td class="no-print"></td>
-                        </tr>
-                    </tfoot>
-                </table>
+        <div id="print-area">
+            <div class="title-box">
+                <b>Name of Work</b> 
+                <textarea id="workName" rows="3" placeholder=""></textarea>
             </div>
 
-            <div class="totals-section">
-                <b style="font-size: 13px; display: block; margin-bottom: 5px;">Summary Table</b>
-                <table>
-                    <tr class="total-row">
-                        <td align="right" style="width: 60%">1. Material Total</td>
-                        <td>₹ <span id="materialTotal">0.00</span></td>
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th style="width:30px">S.N</th>
+                        <th>Material</th>
+                        <th style="width:60px">Rate</th>
+                        <th style="width:50px">Qty</th>
+                        <th style="width:60px">Dismental</th>
+                        <th style="width:55px">Return</th>
+                        <th style="width:55px">Reuse</th>
+                        <th style="width:80px">Amount</th>
                     </tr>
-                    <tr class="total-row">
-                        <td align="right">2. Sundry</td>
-                        <td>₹ <span id="sundry">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">3. Total 1 (1+2)</td>
-                        <td>₹ <span id="sumTotal1">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">4. C/S/T (5% on Pt. 3)</td>
-                        <td>₹ <span id="cstAmount">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">5. Total 2 (3+4)</td>
-                        <td>₹ <span id="sumTotal2">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">6. Add. Charges (4% on Pt. 5)</td>
-                        <td>₹ <span id="addCharges">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right" style="color:#d9534f">7. Labour (Calculated)</td>
-                        <td>₹ <span id="totalLabourSummary">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">8. Total 3 (5+6+7)</td>
-                        <td>₹ <span id="sumTotal3">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">9. T&P+Audit (2.5% on Pt. 8)</td>
-                        <td>₹ <span id="tpAudit">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">10. Total 4 (8+9)</td>
-                        <td>₹ <span id="sumTotal4">0.00</span></td>
-                    </tr>
-                    <tr class="total-row">
-                        <td align="right">11. GST 18% on Pt. 10</td>
-                        <td>₹ <span id="gstTotal">0.00</span></td>
-                    </tr>
-                    <tr class="final-row">
-                        <td align="right">12. GRAND TOTAL (10+11)</td>
-                        <td>₹ <span id="grandTotal">0.00</span></td>
-                    </tr>
-                </table>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+
+            <div class="table-action-area no-print">
+                <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
             </div>
+
+            <div class="calc-container">
+                <div class="labour-selection-section">
+                    <b style="font-size: 13px; display: block; margin-bottom: 5px;">Labour Calculation (Editable)</b>
+                    <table class="lab-table">
+                        <thead>
+                            <tr>
+                                <th>Labour Description</th>
+                                <th style="width:40px">Qty</th>
+                                <th style="width:50px">Rate</th>
+                                <th style="width:80px">Total</th>
+                                <th style="width:30px" class="no-print">X</th>
+                            </tr>
+                        </thead>
+                        <tbody id="labourBody"></tbody>
+                        <tbody id="manualLabourBody"></tbody>
+                        <tfoot>
+                            <tr class="no-print">
+                                <td colspan="5" style="background: #f9f9f9; text-align: left; padding: 5px;">
+                                    <button class="btn-lab" onclick="addManualLabour()">➕ Add Manual Labour Row</button>
+                                </td>
+                            </tr>
+                            <tr class="total-row"><td colspan="3" align="right">1. LABOUR TOTAL</td><td>₹ <span id="labourTotal">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row"><td colspan="3" align="right">2. LABOUR (53X)</td><td>₹ <span id="labour53">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row"><td colspan="3" align="right">3. Total Labour (1+2)</td><td>₹ <span id="point3Total">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">4. Fabrication Qty: <input id="fabQty" class="fab-inline-input" placeholder="0" oninput="finalCalc()"> Rate: <input id="fabRate" class="fab-inline-input" value="28" oninput="finalCalc()"></td>
+                                <td>₹ <span id="fabTotal">0.00</span></td><td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row"><td colspan="3" align="right">5. Total (3+4)</td><td>₹ <span id="point5Total">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row"><td colspan="3" align="right">6. Supervision Charges 15%</td><td>₹ <span id="supervisionCharges">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row"><td colspan="3" align="right">7. Total Labour (5+6)</td><td>₹ <span id="totalLabourLeft">0.00</span></td><td class="no-print"></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="totals-section">
+                    <b style="font-size: 13px; display: block; margin-bottom: 5px;">Summary Table</b>
+                    <table>
+                        <tr class="total-row"><td align="right" style="width: 60%">1. Material Total</td><td>₹ <span id="materialTotal">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">2. Sundry</td><td>₹ <span id="sundry">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">3. Total 1 (1+2)</td><td>₹ <span id="sumTotal1">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">4. C/S/T (5% on Pt. 3)</td><td>₹ <span id="cstAmount">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">5. Total 2 (3+4)</td><td>₹ <span id="sumTotal2">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">6. Add. Charges (4% on Pt. 5)</td><td>₹ <span id="addCharges">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right" style="color:#d9534f">7. Labour (Calculated)</td><td>₹ <span id="totalLabourSummary">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">8. Total 3 (5+6+7)</td><td>₹ <span id="sumTotal3">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">9. T&P+Audit (2.5% on Pt. 8)</td><td>₹ <span id="tpAudit">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">10. Total 4 (8+9)</td><td>₹ <span id="sumTotal4">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">11. GST 18% on Pt. 10</td><td>₹ <span id="gstTotal">0.00</span></td></tr>
+                        <tr class="final-row"><td align="right">12. GRAND TOTAL (10+11)</td><td>₹ <span id="grandTotal">0.00</span></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container no-print" id="ui-buttons">
+            <button class="btn-save" onclick="saveEstimate()">💾 Save Current Work</button>
+            <button class="btn-share" onclick="sharePDF()">📲 Share PDF</button>
+            <button class="btn-print" onclick="window.print()">🖨️ Print Now</button>
         </div>
     </div>
 
-    <div class="btn-container no-print" id="ui-buttons">
-        <button class="btn-share" onclick="sharePDF()">📲 Share PDF</button>
-        <button class="btn-print" onclick="window.print()">🖨️ Print Now</button>
+    <div id="historyTab" class="tab-content">
+        <div class="saved-section">
+            <h2 style="margin-top:0">Saved Estimates Database</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left">Work Description</th>
+                        <th>Date & Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="savedEstimatesList">
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -370,6 +288,14 @@ let matCount=0;
 let deletedAutoRows = new Set();
 let manualOverriddenQtys = {}; 
 
+function openTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+    if(tabId === 'historyTab') renderSavedList();
+}
+
 function addRow(){
     matCount++;
     const newRow = `<tr>
@@ -390,34 +316,21 @@ function addRow(){
 function handleInput(input) {
     const mat = Object.values(materials).find(m => m.name === input.value);
     const r = input.closest("tr");
-    if(mat) { 
-        r.querySelector(".rate-input").value = mat.rate; 
-        r.querySelector(".qty").value = 1; 
-    }
-    const rowId = input.getAttribute('data-row-id');
-    deletedAutoRows.forEach(key => { if(key.startsWith(rowId + "-")) deletedAutoRows.delete(key); });
-    Object.keys(manualOverriddenQtys).forEach(key => { if(key.startsWith(rowId + "-")) delete manualOverriddenQtys[key]; });
-    calc();
-    updateDropdowns();
+    if(mat) { r.querySelector(".rate-input").value = mat.rate; r.querySelector(".qty").value = 1; }
+    calc(); updateDropdowns();
 }
 
-function updateAutoLabourQty(input, key) {
-    manualOverriddenQtys[key] = +input.value || 0;
-    finalCalc();
-}
+function updateAutoLabourQty(input, key) { manualOverriddenQtys[key] = +input.value || 0; finalCalc(); }
 
 function validateLogic(input) {
     const r = input.closest("tr");
     const dis = +r.querySelector(".dismental").value || 0;
     const ret = +r.querySelector(".return").value || 0;
     const reuse = +r.querySelector(".reuse").value || 0;
-    const alertBox = document.getElementById("errorAlert");
     if ((ret + reuse) > dis) {
-        alertBox.style.display = "block";
-        input.style.backgroundColor = "#ffcccc";
-        if (input.classList.contains('return')) { input.value = dis - reuse; } 
-        else { input.value = dis - ret; }
-        setTimeout(() => { alertBox.style.display = "none"; input.style.backgroundColor = "transparent"; }, 3000);
+        document.getElementById("errorAlert").style.display = "block";
+        input.value = input.classList.contains('return') ? dis - reuse : dis - ret;
+        setTimeout(() => document.getElementById("errorAlert").style.display = "none", 3000);
     }
     calc();
 }
@@ -428,29 +341,16 @@ function calc(){
     document.querySelectorAll("#tableBody tr").forEach(r => {
         const nameInput = r.querySelector(".mat-input");
         const rowId = nameInput.getAttribute('data-row-id');
-        if(!nameInput || !nameInput.value) return;
-        
-        const currentRate = +r.querySelector(".rate-input").value || 0;
-        const qty = +r.querySelector(".qty").value || 0;
-        const dis = +r.querySelector(".dismental").value || 0;
-        const reuse = +r.querySelector(".reuse").value || 0;
-        
-        r.querySelector(".amt").innerText = (currentRate * qty).toFixed(2);
-        
+        if(!nameInput.value) return;
+        const qty = +r.querySelector(".qty").value || 0, dis = +r.querySelector(".dismental").value || 0, reuse = +r.querySelector(".reuse").value || 0;
+        r.querySelector(".amt").innerText = ((+r.querySelector(".rate-input").value || 0) * qty).toFixed(2);
         const m = Object.values(materials).find(x => x.name === nameInput.value);
         if(m && m.labour > 0) {
-            const types = [{id:'E', label:'E/O', baseVal:qty, rate:m.labour}, {id:'D', label:'D/O', baseVal:dis, rate:m.labour*0.5}, {id:'R', label:'R/O', baseVal:reuse, rate:m.labour}];
-            types.forEach(t => {
+            [{id:'E', label:'E/O', val:qty, rate:m.labour}, {id:'D', label:'D/O', val:dis, rate:m.labour*0.5}, {id:'R', label:'R/O', val:reuse, rate:m.labour}].forEach(t => {
                 const key = `${rowId}-${t.id}`;
-                if(t.baseVal > 0 && !deletedAutoRows.has(key)) {
-                    const displayQty = manualOverriddenQtys[key] !== undefined ? manualOverriddenQtys[key] : t.baseVal;
-                    labBody.innerHTML += `<tr>
-                        <td>${t.label} ${m.name}</td>
-                        <td><input class="auto-lab-qty-input" value="${displayQty}" oninput="updateAutoLabourQty(this, '${key}')"></td>
-                        <td>${t.rate.toFixed(2)}</td>
-                        <td class="auto-lab-amt">${(displayQty * t.rate).toFixed(2)}</td>
-                        <td class="no-print"><button class="btn-del" onclick="deleteAutoRow(this, '${key}')">×</button></td>
-                    </tr>`;
+                if(t.val > 0 && !deletedAutoRows.has(key)) {
+                    const disp = manualOverriddenQtys[key] !== undefined ? manualOverriddenQtys[key] : t.val;
+                    labBody.innerHTML += `<tr><td>${t.label} ${m.name}</td><td><input class="auto-lab-qty-input" value="${disp}" oninput="updateAutoLabourQty(this, '${key}')"></td><td>${t.rate.toFixed(2)}</td><td class="auto-lab-amt">${(disp * t.rate).toFixed(2)}</td><td class="no-print"><button class="btn-del" onclick="deleteAutoRow(this, '${key}')">×</button></td></tr>`;
                 }
             });
         }
@@ -460,138 +360,113 @@ function calc(){
 
 function finalCalc() {
     let totalMat = 0, totalLab = 0;
-    
-    // Labor Calculations
-    document.querySelectorAll("#labourBody tr").forEach(r => {
-        const q = +r.querySelector(".auto-lab-qty-input").value || 0;
-        const rate = +r.cells[2].innerText || 0;
-        const sub = q * rate;
-        r.querySelector(".auto-lab-amt").innerText = sub.toFixed(2);
-        totalLab += sub;
-    });
-    document.querySelectorAll("#manualLabourBody tr").forEach(r => {
-        const q = +r.querySelector(".m-qty").value || 0;
-        const rt = +r.querySelector(".m-rate").value || 0;
-        const sub = q * rt;
-        r.querySelector(".m-amt").innerText = sub.toFixed(2);
-        totalLab += sub;
-    });
-
-    // 1-7. Labor Section Logic
+    document.querySelectorAll(".auto-lab-amt").forEach(td => totalLab += (+td.innerText || 0));
+    document.querySelectorAll(".m-amt").forEach(td => totalLab += (+td.innerText || 0));
     document.getElementById('labourTotal').innerText = totalLab.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const lab53 = totalLab * 53;
-    document.getElementById('labour53').innerText = lab53.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const point3Lab = totalLab + lab53;
-    document.getElementById('point3Total').innerText = point3Lab.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    
-    // Point 4: Manual Fabrication Rate
-    const fabQty = +document.getElementById('fabQty').value || 0;
-    const fabRate = +document.getElementById('fabRate').value || 0;
-    const fabTotal = fabQty * fabRate;
-    document.getElementById('fabTotal').innerText = fabTotal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    
-    const point5Lab = point3Lab + fabTotal;
-    document.getElementById('point5Total').innerText = point5Lab.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const supervision = point5Lab * 0.15;
-    document.getElementById('supervisionCharges').innerText = supervision.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const finalLabourResult = point5Lab + supervision;
-    document.getElementById('totalLabourLeft').innerText = finalLabourResult.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    document.getElementById('totalLabourSummary').innerText = finalLabourResult.toLocaleString('en-IN', {minimumFractionDigits: 2});
-
-    // 1-12. Summary Table Section Logic
+    const l53 = totalLab * 53; document.getElementById('labour53').innerText = l53.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const p3L = totalLab + l53; document.getElementById('point3Total').innerText = p3L.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const fT = (+document.getElementById('fabQty').value || 0) * (+document.getElementById('fabRate').value || 0);
+    document.getElementById('fabTotal').innerText = fT.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const p5L = p3L + fT; document.getElementById('point5Total').innerText = p5L.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const sup = p5L * 0.15; document.getElementById('supervisionCharges').innerText = sup.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const finalL = p5L + sup; document.getElementById('totalLabourLeft').innerText = finalL.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('totalLabourSummary').innerText = finalL.toLocaleString('en-IN', {minimumFractionDigits: 2});
     document.querySelectorAll(".amt").forEach(td => totalMat += (+td.innerText || 0));
     document.getElementById('materialTotal').innerText = totalMat.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    
-    const overhead = totalMat * 0.015;
-    const tempTotal = totalMat + overhead;
-    let roundedTotal1 = totalMat < 10000 ? Math.ceil(tempTotal / 100) * 100 : Math.ceil(tempTotal / 1000) * 1000;
-    const sundryVal = roundedTotal1 - totalMat;
-    document.getElementById('sundry').innerText = sundryVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    
-    document.getElementById('sumTotal1').innerText = roundedTotal1.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const cstVal = roundedTotal1 * 0.05;
-    document.getElementById('cstAmount').innerText = cstVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const total2 = roundedTotal1 + cstVal;
-    document.getElementById('sumTotal2').innerText = total2.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const addChargesVal = total2 * 0.04;
-    document.getElementById('addCharges').innerText = addChargesVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    
-    const total3 = total2 + addChargesVal + finalLabourResult;
-    document.getElementById('sumTotal3').innerText = total3.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const tpVal = total3 * 0.025;
-    document.getElementById('tpAudit').innerText = tpVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const total4 = total3 + tpVal;
-    document.getElementById('sumTotal4').innerText = total4.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const gstVal = total4 * 0.18;
-    document.getElementById('gstTotal').innerText = gstVal.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    
-    const grandTotalVal = Math.round(total4 + gstVal);
-    document.getElementById('grandTotal').innerText = grandTotalVal.toLocaleString('en-IN');
+    const rT1 = Math.ceil((totalMat + (totalMat*0.015)) / (totalMat < 10000 ? 100 : 1000)) * (totalMat < 10000 ? 100 : 1000);
+    document.getElementById('sundry').innerText = (rT1 - totalMat).toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('sumTotal1').innerText = rT1.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const cst = rT1 * 0.05; document.getElementById('cstAmount').innerText = cst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const t2 = rT1 + cst; document.getElementById('sumTotal2').innerText = t2.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const addC = t2 * 0.04; document.getElementById('addCharges').innerText = addC.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const t3 = t2 + addC + finalL; document.getElementById('sumTotal3').innerText = t3.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const tp = t3 * 0.025; document.getElementById('tpAudit').innerText = tp.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const t4 = t3 + tp; document.getElementById('sumTotal4').innerText = t4.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const gst = t4 * 0.18; document.getElementById('gstTotal').innerText = gst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('grandTotal').innerText = Math.round(t4 + gst).toLocaleString('en-IN');
 }
 
 function updateDropdowns() {
-    const selectedItems = Array.from(document.querySelectorAll('.mat-input')).map(input => input.value).filter(val => val !== "");
+    const sel = Array.from(document.querySelectorAll('.mat-input')).map(i => i.value).filter(v => v);
     document.querySelectorAll('datalist').forEach(dl => {
-        const currentInputVal = dl.previousElementSibling.value;
-        dl.innerHTML = Object.values(materials).filter(m => !selectedItems.includes(m.name) || m.name === currentInputVal).map(m => `<option value="${m.name}">`).join("");
+        const cur = dl.previousElementSibling.value;
+        dl.innerHTML = Object.values(materials).filter(m => !sel.includes(m.name) || m.name === cur).map(m => `<option value="${m.name}">`).join("");
     });
+}
+
+function addManualLabour() {
+    const row = `<tr><td><input style="text-align:left; padding-left:5px" placeholder="Custom Labour..."></td><td><input class="m-qty" value="1" oninput="finalCalc()"></td><td><input class="m-rate" value="0" oninput="finalCalc()"></td><td class="m-amt">0.00</td><td class="no-print"><button class="btn-del" onclick="this.closest('tr').remove(); finalCalc();">×</button></td></tr>`;
+    document.getElementById('manualLabourBody').insertAdjacentHTML('beforeend', row);
 }
 
 function deleteAutoRow(btn, key) { deletedAutoRows.add(key); btn.closest('tr').remove(); finalCalc(); }
 
-function addManualLabour() {
-    const mBody = document.getElementById('manualLabourBody');
-    const row = `<tr><td><input style="text-align:left; padding-left:5px" placeholder="Custom Labour..."></td><td><input class="m-qty" value="1" oninput="finalCalc()"></td><td><input class="m-rate" value="0" oninput="finalCalc()"></td><td class="m-amt">0.00</td><td class="no-print"><button class="btn-del" onclick="this.closest('tr').remove(); finalCalc();">×</button></td></tr>`;
-    mBody.insertAdjacentHTML('beforeend', row);
+function saveEstimate() {
+    const workName = document.getElementById('workName').value;
+    if(!workName) { alert("Work name required!"); return; }
+    const est = {
+        id: Date.now(), date: new Date().toLocaleString(), workName: workName,
+        mats: Array.from(document.querySelectorAll("#tableBody tr")).map(r => ({
+            m: r.querySelector(".mat-input").value, r: r.querySelector(".rate-input").value,
+            q: r.querySelector(".qty").value, d: r.querySelector(".dismental").value, 
+            rt: r.querySelector(".return").value, ru: r.querySelector(".reuse").value
+        })).filter(x => x.m),
+        fQ: document.getElementById('fabQty').value, fR: document.getElementById('fabRate').value,
+        mLab: Array.from(document.querySelectorAll("#manualLabourBody tr")).map(r => ({
+            d: r.querySelector("input").value, q: r.querySelector(".m-qty").value, r: r.querySelector(".m-rate").value
+        }))
+    };
+    let hist = JSON.parse(localStorage.getItem('estimateHistory') || '[]');
+    hist.push(est); localStorage.setItem('estimateHistory', JSON.stringify(hist));
+    alert("Saved Successfully!");
+}
+
+function renderSavedList() {
+    const hist = JSON.parse(localStorage.getItem('estimateHistory') || '[]');
+    document.getElementById('savedEstimatesList').innerHTML = hist.reverse().map(e => `
+        <tr>
+            <td style="text-align:left"><b>${e.workName}</b></td>
+            <td>${e.date}</td>
+            <td>
+                <button class="btn-load" onclick="loadEstimate(${e.id})">LOAD</button>
+                <button class="btn-delete-saved" onclick="deleteSavedEstimate(${e.id})">DELETE</button>
+            </td>
+        </tr>`).join("");
+}
+
+function loadEstimate(id) {
+    const est = JSON.parse(localStorage.getItem('estimateHistory')).find(x => x.id === id);
+    document.getElementById('workName').value = est.workName;
+    document.getElementById('tableBody').innerHTML = ""; matCount = 0;
+    est.mats.forEach(m => {
+        addRow(); const r = document.querySelector("#tableBody tr:last-child");
+        r.querySelector(".mat-input").value = m.m; r.querySelector(".rate-input").value = m.r;
+        r.querySelector(".qty").value = m.q; r.querySelector(".dismental").value = m.d;
+        r.querySelector(".return").value = m.rt; r.querySelector(".reuse").value = m.ru;
+    });
+    document.getElementById('fabQty').value = est.fQ; document.getElementById('fabRate').value = est.fR;
+    document.getElementById('manualLabourBody').innerHTML = "";
+    est.mLab.forEach(l => {
+        addManualLabour(); const r = document.querySelector("#manualLabourBody tr:last-child");
+        r.querySelector("input").value = l.d; r.querySelector(".m-qty").value = l.q; r.querySelector(".m-rate").value = l.r;
+    });
+    calc(); openTab('estimationTab', document.querySelector('.tab-btn'));
+}
+
+function deleteSavedEstimate(id) {
+    if(confirm("Delete this record?")) {
+        let hist = JSON.parse(localStorage.getItem('estimateHistory')).filter(x => x.id !== id);
+        localStorage.setItem('estimateHistory', JSON.stringify(hist));
+        renderSavedList();
+    }
 }
 
 async function sharePDF() {
-    const buttons = document.getElementById('ui-buttons');
-    const deleteBtns = document.querySelectorAll('.btn-del');
-    const labAddBtn = document.querySelector('.btn-lab');
-    const tableAddBtn = document.querySelector('.table-action-area');
-    const inputs = document.querySelectorAll('.no-print');
-
-    buttons.classList.add('pdf-hidden');
-    deleteBtns.forEach(b => b.classList.add('pdf-hidden'));
-    if(labAddBtn) labAddBtn.classList.add('pdf-hidden');
-    if(tableAddBtn) tableAddBtn.classList.add('pdf-hidden');
-    inputs.forEach(i => i.classList.add('pdf-hidden'));
-
     const element = document.getElementById('print-area');
-    const opt = { 
-        margin: 0.3, 
-        filename: 'Estimation.pdf', 
-        image: { type: 'jpeg', quality: 0.98 }, 
-        html2canvas: { scale: 2, useCORS: true }, 
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
-    };
-
-    try {
-        const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-        const file = new File([pdfBlob], "Estimation.pdf", { type: 'application/pdf' });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: 'Material Estimation',
-                text: 'Generated Estimation Details'
-            });
-        } else {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(pdfBlob);
-            link.download = 'Estimation.pdf';
-            link.click();
-        }
-    } catch (error) {
-        console.error('Action failed:', error);
-    } finally {
-        buttons.classList.remove('pdf-hidden');
-        deleteBtns.forEach(b => b.classList.remove('pdf-hidden'));
-        if(labAddBtn) labAddBtn.classList.remove('pdf-hidden');
-        if(tableAddBtn) tableAddBtn.classList.remove('pdf-hidden');
-        inputs.forEach(i => i.classList.remove('pdf-hidden'));
-    }
+    const opt = { margin: 0.3, filename: 'Estimate.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter' } };
+    const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+    const file = new File([pdfBlob], "Estimate.pdf", { type: 'application/pdf' });
+    if (navigator.share) navigator.share({ files: [file], title: 'Estimate' });
 }
 
 for(let i=0;i<12;i++) addRow();
