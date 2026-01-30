@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Material Estimation App</title>
+
+<style>
+body{font-family:Arial,sans-serif;background:#f4f6f8;padding:10px}
+#appContainer{display:block; max-width: 1000px; margin: auto;}
+
+/* Tab Styling */
+.tab-container { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #ddd; }
+.tab-btn { 
+    padding: 12px 25px; cursor: pointer; background: #e9ecef; border: none; 
+    border-radius: 8px 8px 0 0; font-weight: bold; color: #555; transition: 0.3s;
+}
+.tab-btn.active { background: #007bff; color: white; }
+.tab-content { display: none; background: transparent; }
+.tab-content.active { display: block; }
+
+/* Existing Styles */
+.video-guide-container { background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; text-align: center; border: 1px solid #ddd; }
+.yt-button { display: inline-flex; align-items: center; background: #cc0000; color: #ffffff !important; text-decoration: none; font-weight: bold; font-size: 14px; padding: 10px 20px; border-radius: 50px; transition: background 0.3s; margin-bottom: 8px; }
+.yt-button:hover { background: #ff0000; }
+.yt-button span { margin-right: 8px; font-size: 18px; }
+
+#errorAlert { display: none; background: #f8d7da; color: #721c24; padding: 10px; border: 1px solid #f5c6cb; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; }
+.notice-top{ color:red; font-weight:900; font-size: 1.1rem; margin-bottom:15px; text-align: center; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+.title-box textarea{width:100%; border:2px solid #000; padding:6px; margin-top:5px; display:block; resize: none;}
+
+table{width:100%; border-collapse:collapse; background:#fff; table-layout:fixed; margin-bottom:10px}
+th,td{border:1px solid #000; padding:4px; text-align:center; font-size: 11px;}
+th{background:#e0e0e0}
+
+.calc-container { display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; align-items: flex-start; }
+.labour-selection-section { width: 55%; }
+.totals-section { width: 43%; }
+
+.main-table th:nth-child(2){width:180px} 
+input{width:100%; padding:2px; box-sizing:border-box; border:none; text-align:center}
+input:focus{outline:1px solid #007bff}
+
+.total-row td{font-weight:bold; background:#f0f0f0}
+.final-row td{font-weight:bold; background:#dff0d8; font-size:13px}
+
+.btn-container { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
+.btn-add { background: #28a745; color: white; border: none; }
+.btn-lab { background: #17a2b8; color: white; border: none; font-size: 10px; margin-top: 5px;}
+.btn-share { background: #007bff; color: white; border: none; padding: 12px 25px; }
+.btn-print { background: #ffc107; color: black; border: none; padding: 12px 25px; }
+.btn-save { background: #6c757d; color: white; border: none; padding: 12px 25px; }
+.btn-del { background: #dc3545; color: white; border: none; padding: 2px 5px; cursor: pointer; font-size: 10px;}
+.fab-inline-input { width: 45px !important; border-bottom: 1px solid #999 !important; display: inline-block !important; background: #fff8e1 !important; text-align: center; }
+
+/* History Tab Table */
+.history-table { width: 100%; border-radius: 8px; overflow: hidden; }
+.history-table th { background: #343a40; color: white; padding: 10px; }
+.history-table td { padding: 10px; background: #fff; }
+.btn-load { background: #17a2b8; color: white; border: none; margin-right: 5px; }
+.btn-delete-saved { background: #dc3545; color: white; border: none; }
+
+.pdf-hidden { display: none !important; }
+
+@media print{
+    .no-print, .btn-del, .btn-lab, .btn-container, .video-guide-container, .table-action-area, .tab-container {display:none !important}
+    body { background: white; padding: 0; }
+}
+</style>
+</head>
+
+<body>
+
+<div id="appContainer">
+    <div class="tab-container no-print">
+        <button class="tab-btn active" onclick="openTab('estimationTab', this)">📊 New Estimate</button>
+        <button class="tab-btn" onclick="openTab('historyTab', this)">📁 Saved Records</button>
+    </div>
+
+    <div id="estimationTab" class="tab-content active">
+        <div class="video-guide-container no-print">
+            <a href="https://youtu.be/Y62x8NpRh2E" target="_blank" class="yt-button">
+                <span>▶</span> WATCH: HOW TO USE THIS SHEET
+            </a>
+            <p>Follow the workflow to generate your estimate accurately.</p>
+        </div>
+
+        <div id="errorAlert" class="no-print">⚠️ Error: Return + Reuse cannot exceed Dismantle quantity!</div>
+        <div class="notice-top no-print">ਕਿਸੇ ਵੀ ਸਹਾਇਤਾ ਲਈ - Nitish 9988344156</div>
+
+        <div id="print-area">
+            <div class="title-box">
+                <b>Name of Work</b> 
+                <textarea id="workName" rows="3" placeholder=""></textarea>
+            </div>
+
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th style="width:30px">S.N</th>
+                        <th>Material</th>
+                        <th style="width:60px">Rate</th>
+                        <th style="width:50px">Qty</th>
+                        <th style="width:60px">Dismental</th>
+                        <th style="width:55px">Return</th>
+                        <th style="width:55px">Reuse</th>
+                        <th style="width:80px">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+
+            <div class="table-action-area no-print">
+                <button class="btn-add" onclick="addRow()">➕ Add Material Row</button>
+            </div>
+
+            <div class="calc-container">
+                <div class="labour-selection-section">
+                    <b style="font-size: 13px; display: block; margin-bottom: 5px;">Labour Calculation (Editable)</b>
+                    <table class="lab-table">
+                        <thead>
+                            <tr>
+                                <th>Labour Description</th>
+                                <th style="width:40px">Qty</th>
+                                <th style="width:50px">Rate</th>
+                                <th style="width:80px">Total</th>
+                                <th style="width:30px" class="no-print">X</th>
+                            </tr>
+                        </thead>
+                        <tbody id="labourBody"></tbody>
+                        <tbody id="manualLabourBody"></tbody>
+                        <tfoot>
+                            <tr class="no-print">
+                                <td colspan="5" style="background: #f9f9f9; text-align: left; padding: 5px;">
+                                    <button class="btn-lab" onclick="addManualLabour()">➕ Add Manual Labour Row</button>
+                                </td>
+                            </tr>
+                            <tr class="total-row"><td colspan="3" align="right">1. LABOUR TOTAL</td><td>₹ <span id="labourTotal">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row"><td colspan="3" align="right">2. LABOUR (53X)</td><td>₹ <span id="labour53">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row"><td colspan="3" align="right">3. Total Labour (1+2)</td><td>₹ <span id="point3Total">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row">
+                                <td colspan="3" align="right">4. Fabrication Qty: <input id="fabQty" class="fab-inline-input" placeholder="0" oninput="finalCalc()"> Rate: <input id="fabRate" class="fab-inline-input" value="28" oninput="finalCalc()"></td>
+                                <td>₹ <span id="fabTotal">0.00</span></td><td class="no-print"></td>
+                            </tr>
+                            <tr class="total-row"><td colspan="3" align="right">5. Total Labour (3+4)</td><td>₹ <span id="totalLabourLeft">0.00</span></td><td class="no-print"></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="totals-section">
+                    <b style="font-size: 13px; display: block; margin-bottom: 5px;">Summary Table</b>
+                    <table>
+                        <tr class="total-row"><td align="right" style="width: 60%">1. Material Total</td><td>₹ <span id="materialTotal">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">2. Sundry</td><td>₹ <span id="sundry">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">3. Total 1 (1+2)</td><td>₹ <span id="sumTotal1">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">4. C/S/T (5% on Pt. 3)</td><td>₹ <span id="cstAmount">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">5. Total 2 (3+4)</td><td>₹ <span id="sumTotal2">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right" style="color:#d9534f">6. Total Labour (Calculated)</td><td>₹ <span id="totalLabourSummary">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">7. Total 2A (5+6)</td><td>₹ <span id="sumTotalAbove">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">8. 16% Establishment (on Pt. 7)</td><td>₹ <span id="estCharges">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">9. Total 3 (7+8)</td><td>₹ <span id="sumTotal3">0.00</span></td></tr>
+                        <tr class="total-row"><td align="right">10. GST 18% on Pt. 9</td><td>₹ <span id="gstTotal">0.00</span></td></tr>
+                        <tr class="final-row"><td align="right">11. GRAND TOTAL (9+10)</td><td>₹ <span id="grandTotal">0.00</span></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container no-print" id="ui-buttons">
+            <button class="btn-save" onclick="saveEstimate()">💾 Save Current Work</button>
+            <button class="btn-share" onclick="sharePDF()">📲 Share PDF</button>
+            <button class="btn-print" onclick="window.print()">🖨️ Print Now</button>
+        </div>
+    </div>
+
+    <div id="historyTab" class="tab-content">
+        <div class="saved-section">
+            <h2 style="margin-top:0">Saved Estimates Database</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th style="text-align:left">Work Description</th>
+                        <th>Date & Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="savedEstimatesList">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+const materials={
+    1:{name:"6.3KVA T/Fs",rate:29553,labour:119.5},
+    2:{name:"10KVA T/Fs",rate:54993,labour:119.5},
+    3:{name:"16KVA T/Fs",rate:63864,labour:119.5},
+    4:{name:"25KVA T/Fs ",rate:77932,labour:119.5},
+    5:{name:"63KVA T/Fs",rate:145613,labour:119.5},
+    6:{name:"100KVA T/Fs",rate:185926,labour:137.5},
+    7:{name:"200KVA T/Fs",rate:360639,labour:137.5},
+    8:{name:"300KVA T/Fs",rate:278025,labour:137.5},
+    9:{name:"315KVA T/Fs",rate:631400,labour:137.5},
+    10:{name:"500KVA T/Fs",rate:1540229,labour:137.5},
+    11:{name:"10KVA 1Ph T/Fs",rate:44000,labour:119.5},
+    12:{name:"25KVA 1Ph T/Fs",rate:85713,labour:119.5},
+    13:{name:"PCC Pole 9 Mtr. ",rate:3692,labour:17},
+    14:{name:"PCC Pole 11 Mtr.",rate:8204,labour:21.25},
+    15:{name:"ACSR 30mm2  ( Weasel )",rate:39,labour:0.06135},
+    16:{name:"ACSR 50mm2 ( Rabbit )",rate:66.366,labour:0.06135},
+    17:{name:"ACSR 80 mm2  ( Raccoon )",rate:110,labour:0.106},
+    18:{name:"ACSR100 mm2 ( Dog )",rate:117,labour:0.11997},
+    19:{name:"Stay Set Complete",rate:445,labour:7.5},
+    20:{name:"GSS wire",rate:93.133,labour:0},
+    21:{name:"HT Guy Insulator (9000 Kg.)",rate:49,labour:0},
+    22:{name:"LT Guy Insulator (4500 Kg.)",rate:10,labour:0},
+    23:{name:"Shackle Insulator",rate:20,labour:0},
+    24:{name:"D Strap",rate:9,labour:0},
+    25:{name:"MS Channel 100 x50mm",rate:90.86,labour:0},
+    26:{name:"MS Channel 75x40mm",rate:92.158,labour:0},
+    27:{name:"MS Angle 65x65x6mm",rate:84.746,labour:0},
+    28:{name:"MS Angle 50x50x6mm",rate:84.746,labour:0},
+    29:{name:"MS Flat 40x6mm",rate:83.072,labour:0},
+    30:{name:"MS Flat 50x6mm",rate:83.072,labour:0},
+    31:{name:"GI Pins",rate:176,labour:0},
+    32:{name:"Pin Insulators",rate:113,labour:0},
+    33:{name:"Top Hamper",rate:195,labour:0},
+    34:{name:"V-Shape X-Arms",rate:802,labour:0},
+    35:{name:"11 KV Disc Insulators",rate:156,labour:0},
+    36:{name:"Dead end Clamps 30 to 80mm2",rate:312,labour:0},
+    37:{name:"GSL 4mm",rate:96.307,labour:0},
+    38:{name:"Earth Rod ",rate:602,labour:6.75},
+    39:{name:"HT Fuse Unit",rate:1749,labour:0},
+    40:{name:"LT Fuse Unit",rate:580,labour:0},
+    41:{name:"GO Switch 75 Amps",rate:6490,labour:33.1},
+    42:{name:"GO Switch 400 Amps",rate:12790,labour:33.1},
+    43:{name:"PG Clamps 30 to 80mm2",rate:113,labour:0},
+    44:{name:"RCC anchor Plates",rate:220,labour:0},
+    45:{name:"Single Core LT Cable 95mm2",rate:118.073,labour:0},
+    46:{name:"Single Core LT Cable 150 mm2",rate:164.065,labour:0},
+    47:{name:"2 Core PVC 6 mm2",rate:17.93,labour:0},
+    48:{name:"2 Core 10 mm2",rate:38,labour:0},
+    49:{name:"4 Core XLPE LT Cable 10 mm2",rate:85,labour:0},
+    50:{name:"4 Core XLPE LT Cable 16 mm2",rate:94,labour:0},
+    51:{name:"4 Core XLPE LT Cable 25mm2",rate:150,labour:0},
+    52:{name:"4 Core XLPE LT Cable 50mm2",rate:255,labour:0},
+    53:{name:"4 Core XLPE LT Cable 95 mm2",rate:452.76,labour:0},
+    54:{name:"4 Core XLPE LT Cable 150 mm2",rate:674.619,labour:0},
+    55:{name:"11 KV XLPE CABLE 3/C 35MM2",rate:470.8,labour:0.744},
+    56:{name:"11 KV XLPE CABLE 3/C 150MM2",rate:1013.606,labour:1.0503},
+    57:{name:"11 KV XLPE CABLE 3/C 300MM2",rate:1644.027,labour:1.0503},
+    58:{name:"11 KV Cable box O/D 35 mm2",rate:832,labour:11.75},
+    59:{name:"11 KV Cable box O/D 150 mm2",rate:814,labour:11.75},
+    60:{name:"11 KV Cable box O/D 300 mm2",rate:1095,labour:11.75},
+    61:{name:"11 KV Cable box I/D 35 mm2",rate:605,labour:11.75},
+    62:{name:"11 KV Cable box I/D 150 mm2",rate:756,labour:11.75},
+    63:{name:"11 KV Cable box I/D 300 mm2",rate:1000,labour:11.75},
+    64:{name:"MS NUT & BOLT 12X40MM",rate:83,labour:0},
+    65:{name:"MS NUT & BOLT 12X125MM",rate:76.573,labour:0},
+    66:{name:"MS NUT & BOLT 12X175MM",rate:102.502,labour:0},
+    67:{name:"MS NUT & BOLT 12X200MM",rate:102.502,labour:0},
+    68:{name:"MS NUT & BOLT 12X225MM",rate:102.502,labour:0},
+    69:{name:"MS NUT & BOLT 16X55MM",rate:101.204,labour:0},
+    70:{name:"MS NUT & BOLT 16X200MM",rate:76.573,labour:0},
+    71:{name:"CTPT 10/5",rate:75750,labour:0},
+    72:{name:"CTPT 20/5",rate:75750,labour:0},
+    73:{name:"CT PT 30/5",rate:75750,labour:0},
+    74:{name:"CT PT 50/5",rate:75000,labour:0},
+    75:{name:"CT PT 75/5",rate:75000,labour:0},
+    76:{name:"CT PT 100/5",rate:75000,labour:0},
+    77:{name:"CT PT 200/5",rate:75000,labour:0},
+    78:{name:"PCC POLL 8 MTR",rate:0,labour:0},
+    79:{name:"ACSR 13MM2",rate:0,labour:0},
+    80:{name:"ACSR 20MM2",rate:0,labour:0},
+    81:{name:"MS IRON SCRAP",rate:0,labour:0},
+    82:{name:"4C ALUM. CABLE SCRAP",rate:0,labour:0},
+83:{name:"EGG INSU 9000KN",rate:49,labour:0},
+84:{name:"EGG INSU 4500KN",rate:10,labour:0},
+};
+
+let matCount=0;
+let deletedAutoRows = new Set();
+let manualOverriddenQtys = {}; 
+
+function openTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+    if(tabId === 'historyTab') renderSavedList();
+}
+
+function addRow(){
+    matCount++;
+    const newRow = `<tr>
+        <td>${matCount}</td>
+        <td><input class="mat-input" list="ml_${matCount}" data-row-id="${matCount}" onfocus="updateDropdowns()" oninput="handleInput(this)">
+            <datalist id="ml_${matCount}"></datalist></td>
+        <td><input class="rate-input" oninput="calc()"></td>
+        <td><input class="qty" oninput="calc()"></td>
+        <td><input class="dismental" oninput="calc()"></td>
+        <td><input class="return" oninput="validateLogic(this)"></td>
+        <td><input class="reuse" oninput="validateLogic(this)"></td>
+        <td class="amt">0</td>
+    </tr>`;
+    document.getElementById('tableBody').insertAdjacentHTML('beforeend', newRow);
+    updateDropdowns();
+}
+
+function handleInput(input) {
+    const mat = Object.values(materials).find(m => m.name === input.value);
+    const r = input.closest("tr");
+    if(mat) { r.querySelector(".rate-input").value = mat.rate; r.querySelector(".qty").value = 1; }
+    calc(); updateDropdowns();
+}
+
+function updateAutoLabourQty(input, key) { manualOverriddenQtys[key] = +input.value || 0; finalCalc(); }
+
+function validateLogic(input) {
+    const r = input.closest("tr");
+    const dis = +r.querySelector(".dismental").value || 0;
+    const ret = +r.querySelector(".return").value || 0;
+    const reuse = +r.querySelector(".reuse").value || 0;
+    if ((ret + reuse) > dis) {
+        document.getElementById("errorAlert").style.display = "block";
+        input.value = input.classList.contains('return') ? dis - reuse : dis - ret;
+        setTimeout(() => document.getElementById("errorAlert").style.display = "none", 3000);
+    }
+    calc();
+}
+
+function calc(){
+    const labBody = document.getElementById('labourBody');
+    labBody.innerHTML = ""; 
+    document.querySelectorAll("#tableBody tr").forEach(r => {
+        const nameInput = r.querySelector(".mat-input");
+        const rowId = nameInput.getAttribute('data-row-id');
+        if(!nameInput.value) return;
+        const qty = +r.querySelector(".qty").value || 0, dis = +r.querySelector(".dismental").value || 0, reuse = +r.querySelector(".reuse").value || 0;
+        r.querySelector(".amt").innerText = ((+r.querySelector(".rate-input").value || 0) * qty).toFixed(2);
+        const m = Object.values(materials).find(x => x.name === nameInput.value);
+        if(m && m.labour > 0) {
+            [{id:'E', label:'E/O', val:qty, rate:m.labour}, {id:'D', label:'D/O', val:dis, rate:m.labour*0.5}, {id:'R', label:'R/O', val:reuse, rate:m.labour}].forEach(t => {
+                const key = `${rowId}-${t.id}`;
+                if(t.val > 0 && !deletedAutoRows.has(key)) {
+                    const disp = manualOverriddenQtys[key] !== undefined ? manualOverriddenQtys[key] : t.val;
+                    labBody.innerHTML += `<tr><td>${t.label} ${m.name}</td><td><input class="auto-lab-qty-input" value="${disp}" oninput="updateAutoLabourQty(this, '${key}')"></td><td>${t.rate.toFixed(2)}</td><td class="auto-lab-amt">${(disp * t.rate).toFixed(2)}</td><td class="no-print"><button class="btn-del" onclick="deleteAutoRow(this, '${key}')">×</button></td></tr>`;
+                }
+            });
+        }
+    });
+    finalCalc();
+}
+
+function finalCalc() {
+    let totalMat = 0, totalLab = 0;
+    document.querySelectorAll(".auto-lab-amt").forEach(td => totalLab += (+td.innerText || 0));
+    document.querySelectorAll(".m-amt").forEach(td => totalLab += (+td.innerText || 0));
+    document.getElementById('labourTotal').innerText = totalLab.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const l53 = totalLab * 53; document.getElementById('labour53').innerText = l53.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const p3L = totalLab + l53; document.getElementById('point3Total').innerText = p3L.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const fT = (+document.getElementById('fabQty').value || 0) * (+document.getElementById('fabRate').value || 0);
+    document.getElementById('fabTotal').innerText = fT.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const finalL = p3L + fT; 
+    document.getElementById('totalLabourLeft').innerText = finalL.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('totalLabourSummary').innerText = finalL.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    document.querySelectorAll(".amt").forEach(td => totalMat += (+td.innerText || 0));
+    document.getElementById('materialTotal').innerText = totalMat.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const rT1 = Math.ceil((totalMat + (totalMat*0.015)) / (totalMat < 10000 ? 100 : 1000)) * (totalMat < 10000 ? 100 : 1000);
+    document.getElementById('sundry').innerText = (rT1 - totalMat).toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('sumTotal1').innerText = rT1.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const cst = rT1 * 0.05; document.getElementById('cstAmount').innerText = cst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const t2 = rT1 + cst; document.getElementById('sumTotal2').innerText = t2.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const tAbove = t2 + finalL;
+    document.getElementById('sumTotalAbove').innerText = tAbove.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const estC = tAbove * 0.16; document.getElementById('estCharges').innerText = estC.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    const t3 = tAbove + estC; document.getElementById('sumTotal3').innerText = t3.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const gst = t3 * 0.18; document.getElementById('gstTotal').innerText = gst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    document.getElementById('grandTotal').innerText = Math.round(t3 + gst).toLocaleString('en-IN');
+}
+
+function updateDropdowns() {
+    const sel = Array.from(document.querySelectorAll('.mat-input')).map(i => i.value).filter(v => v);
+    document.querySelectorAll('datalist').forEach(dl => {
+        const cur = dl.previousElementSibling.value;
+        dl.innerHTML = Object.values(materials).filter(m => !sel.includes(m.name) || m.name === cur).map(m => `<option value="${m.name}">`).join("");
+    });
+}
+
+function addManualLabour() {
+    const row = `<tr><td><input style="text-align:left; padding-left:5px" placeholder="Custom Labour..."></td><td><input class="m-qty" value="1" oninput="finalCalc()"></td><td><input class="m-rate" value="0" oninput="finalCalc()"></td><td class="m-amt">0.00</td><td class="no-print"><button class="btn-del" onclick="this.closest('tr').remove(); finalCalc();">×</button></td></tr>`;
+    document.getElementById('manualLabourBody').insertAdjacentHTML('beforeend', row);
+}
+
+function deleteAutoRow(btn, key) { deletedAutoRows.add(key); btn.closest('tr').remove(); finalCalc(); }
+
+function saveEstimate() {
+    const workName = document.getElementById('workName').value;
+    if(!workName) { alert("Work name required!"); return; }
+    const est = {
+        id: Date.now(), date: new Date().toLocaleString(), workName: workName,
+        mats: Array.from(document.querySelectorAll("#tableBody tr")).map(r => ({
+            m: r.querySelector(".mat-input").value, r: r.querySelector(".rate-input").value,
+            q: r.querySelector(".qty").value, d: r.querySelector(".dismental").value, 
+            rt: r.querySelector(".return").value, ru: r.querySelector(".reuse").value
+        })).filter(x => x.m),
+        fQ: document.getElementById('fabQty').value, fR: document.getElementById('fabRate').value,
+        mLab: Array.from(document.querySelectorAll("#manualLabourBody tr")).map(r => ({
+            d: r.querySelector("input").value, q: r.querySelector(".m-qty").value, r: r.querySelector(".m-rate").value
+        }))
+    };
+    let hist = JSON.parse(localStorage.getItem('estimateHistory') || '[]');
+    hist.push(est); localStorage.setItem('estimateHistory', JSON.stringify(hist));
+    alert("Saved Successfully!");
+}
+
+function renderSavedList() {
+    const hist = JSON.parse(localStorage.getItem('estimateHistory') || '[]');
+    document.getElementById('savedEstimatesList').innerHTML = hist.reverse().map(e => `
+        <tr>
+            <td style="text-align:left"><b>${e.workName}</b></td>
+            <td>${e.date}</td>
+            <td>
+                <button class="btn-load" onclick="loadEstimate(${e.id})">LOAD</button>
+                <button class="btn-delete-saved" onclick="deleteSavedEstimate(${e.id})">DELETE</button>
+            </td>
+        </tr>`).join("");
+}
+
+function loadEstimate(id) {
+    const est = JSON.parse(localStorage.getItem('estimateHistory')).find(x => x.id === id);
+    document.getElementById('workName').value = est.workName;
+    document.getElementById('tableBody').innerHTML = ""; matCount = 0;
+    est.mats.forEach(m => {
+        addRow(); const r = document.querySelector("#tableBody tr:last-child");
+        r.querySelector(".mat-input").value = m.m; r.querySelector(".rate-input").value = m.r;
+        r.querySelector(".qty").value = m.q; r.querySelector(".dismental").value = m.d;
+        r.querySelector(".return").value = m.rt; r.querySelector(".reuse").value = m.ru;
+    });
+    document.getElementById('fabQty').value = est.fQ; document.getElementById('fabRate').value = est.fR;
+    document.getElementById('manualLabourBody').innerHTML = "";
+    est.mLab.forEach(l => {
+        addManualLabour(); const r = document.querySelector("#manualLabourBody tr:last-child");
+        r.querySelector("input").value = l.d; r.querySelector(".m-qty").value = l.q; r.querySelector(".m-rate").value = l.r;
+    });
+    calc(); openTab('estimationTab', document.querySelector('.tab-btn'));
+}
+
+function deleteSavedEstimate(id) {
+    if(confirm("Delete this record?")) {
+        let hist = JSON.parse(localStorage.getItem('estimateHistory')).filter(x => x.id !== id);
+        localStorage.setItem('estimateHistory', JSON.stringify(hist));
+        renderSavedList();
+    }
+}
+
+async function sharePDF() {
+    const element = document.getElementById('print-area');
+    const opt = { margin: 0.3, filename: 'Estimate.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter' } };
+    const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+    const file = new File([pdfBlob], "Estimate.pdf", { type: 'application/pdf' });
+    if (navigator.share) navigator.share({ files: [file], title: 'Estimate' });
+}
+
+for(let i=0;i<12;i++) addRow();
+</script>
+</body>
+</html>
