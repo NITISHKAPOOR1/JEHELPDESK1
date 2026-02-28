@@ -142,9 +142,7 @@ button { padding: 8px 12px; cursor: pointer; font-weight: bold; border-radius: 4
                                 <td colspan="3" align="right">4. Fabrication Qty: <input id="fabQty" class="fab-inline-input" placeholder="0" oninput="finalCalc()"> Rate: <input id="fabRate" class="fab-inline-input" value="28" oninput="finalCalc()"></td>
                                 <td>₹ <span id="fabTotal">0.00</span></td><td class="no-print"></td>
                             </tr>
-                            <tr class="total-row"><td colspan="3" align="right">5. Total (3+4)</td><td>₹ <span id="point5Total">0.00</span></td><td class="no-print"></td></tr>
-                            <tr class="total-row"><td colspan="3" align="right">6. Supervision Charges 15%</td><td>₹ <span id="supervisionCharges">0.00</span></td><td class="no-print"></td></tr>
-                            <tr class="total-row"><td colspan="3" align="right">7. Total Labour (5+6)</td><td>₹ <span id="totalLabourLeft">0.00</span></td><td class="no-print"></td></tr>
+                            <tr class="total-row"><td colspan="3" align="right">5. Total Labour (3+4)</td><td>₹ <span id="totalLabourLeft">0.00</span></td><td class="no-print"></td></tr>
                         </tfoot>
                     </table>
                 </div>
@@ -280,8 +278,8 @@ const materials={
     80:{name:"ACSR 20MM2",rate:0,labour:0},
     81:{name:"MS IRON SCRAP",rate:0,labour:0},
     82:{name:"4C ALUM. CABLE SCRAP",rate:0,labour:0},
-83:{name:"EGG INSU 9000KN",rate:49,labour:0},
-84:{name:"EGG INSU 4500KN",rate:10,labour:0},
+    83:{name:"EGG INSU 9000KN",rate:49,labour:0},
+    84:{name:"EGG INSU 4500KN",rate:10,labour:0},
 };
 
 let matCount=0;
@@ -360,29 +358,65 @@ function calc(){
 
 function finalCalc() {
     let totalMat = 0, totalLab = 0;
+    
+    // 1. Calculate Auto Labour
     document.querySelectorAll(".auto-lab-amt").forEach(td => totalLab += (+td.innerText || 0));
-    document.querySelectorAll(".m-amt").forEach(td => totalLab += (+td.innerText || 0));
+    
+    // 2. Calculate Manual Labour
+    document.querySelectorAll("#manualLabourBody tr").forEach(tr => {
+        const q = +tr.querySelector('.m-qty').value || 0;
+        const r = +tr.querySelector('.m-rate').value || 0;
+        const amt = q * r;
+        tr.querySelector('.m-amt').innerText = amt.toFixed(2);
+        totalLab += amt;
+    });
+
+    // 3. Update Labour Totals
     document.getElementById('labourTotal').innerText = totalLab.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const l53 = totalLab * 53; document.getElementById('labour53').innerText = l53.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const p3L = totalLab + l53; document.getElementById('point3Total').innerText = p3L.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const l53 = totalLab * 53; 
+    document.getElementById('labour53').innerText = l53.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const p3L = totalLab + l53; 
+    document.getElementById('point3Total').innerText = p3L.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
     const fT = (+document.getElementById('fabQty').value || 0) * (+document.getElementById('fabRate').value || 0);
     document.getElementById('fabTotal').innerText = fT.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const p5L = p3L + fT; document.getElementById('point5Total').innerText = p5L.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const sup = p5L * 0.15; document.getElementById('supervisionCharges').innerText = sup.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const finalL = p5L + sup; document.getElementById('totalLabourLeft').innerText = finalL.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    // Final Labour Total (Supervision Charges removed)
+    const finalL = p3L + fT; 
+    document.getElementById('totalLabourLeft').innerText = finalL.toLocaleString('en-IN', {minimumFractionDigits: 2});
     document.getElementById('totalLabourSummary').innerText = finalL.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    // 4. Material & Summary Table Math
     document.querySelectorAll(".amt").forEach(td => totalMat += (+td.innerText || 0));
     document.getElementById('materialTotal').innerText = totalMat.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
     const rT1 = Math.ceil((totalMat + (totalMat*0.015)) / (totalMat < 10000 ? 100 : 1000)) * (totalMat < 10000 ? 100 : 1000);
     document.getElementById('sundry').innerText = (rT1 - totalMat).toLocaleString('en-IN', {minimumFractionDigits: 2});
     document.getElementById('sumTotal1').innerText = rT1.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const cst = rT1 * 0.05; document.getElementById('cstAmount').innerText = cst.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const t2 = rT1 + cst; document.getElementById('sumTotal2').innerText = t2.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const addC = t2 * 0.04; document.getElementById('addCharges').innerText = addC.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const t3 = t2 + addC + finalL; document.getElementById('sumTotal3').innerText = t3.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const tp = t3 * 0.025; document.getElementById('tpAudit').innerText = tp.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const t4 = t3 + tp; document.getElementById('sumTotal4').innerText = t4.toLocaleString('en-IN', {minimumFractionDigits: 2});
-    const gst = t4 * 0.18; document.getElementById('gstTotal').innerText = gst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const cst = rT1 * 0.05; 
+    document.getElementById('cstAmount').innerText = cst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const t2 = rT1 + cst; 
+    document.getElementById('sumTotal2').innerText = t2.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const addC = t2 * 0.04; 
+    document.getElementById('addCharges').innerText = addC.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const t3 = t2 + addC + finalL; 
+    document.getElementById('sumTotal3').innerText = t3.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const tp = t3 * 0.025; 
+    document.getElementById('tpAudit').innerText = tp.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const t4 = t3 + tp; 
+    document.getElementById('sumTotal4').innerText = t4.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const gst = t4 * 0.18; 
+    document.getElementById('gstTotal').innerText = gst.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
     document.getElementById('grandTotal').innerText = Math.round(t4 + gst).toLocaleString('en-IN');
 }
 
